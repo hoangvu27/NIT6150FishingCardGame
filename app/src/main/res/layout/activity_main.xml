@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:text="Status"
+        android:textSize="18sp" />
+
+    <!-- Bob's Cards (Top) -->
+    <TextView
+        android:id="@+id/bobName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="Bob"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/bobCards"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bobName"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="50dp"/>
+
+
+    <!-- Alice's Cards (Left) -->
+    <TextView
+        android:id="@+id/aliceName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="100dp"
+        android:text="Alice"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/aliceCards"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/aliceName"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:layout_marginStart="10dp"
+        android:layout_alignParentStart="true" />
+
+    <!-- Charlie's Cards (Right) -->
+
+    <TextView
+        android:id="@+id/charlieName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="100dp"
+        android:text="Charlie"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/charlieCards"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/charlieName"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:layout_marginEnd="10dp"
+        android:layout_alignParentEnd="true" />
+
+    <!-- Human Player's Cards (Bottom) -->
+    <LinearLayout
+        android:id="@+id/playerHand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="50dp" />
+
+    <!-- Controls -->
+    <Spinner
+        android:id="@+id/rankSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/botSpinner"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp" />
+
+    <Spinner
+        android:id="@+id/botSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/askButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="70dp" />
+
+    <Button
+        android:id="@+id/askButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:text="Ask" />
+
+</RelativeLayout>
