@@ -90,12 +90,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void updatePlayerHandView() {
         playerHandView.removeAllViews();
-        for (Card card : game.getHumanPlayer().getHand()) {
+        for (int i = 0; i < game.getHumanPlayer().getHand().size(); i++) {
+            Card card = game.getHumanPlayer().getHand().get(i);
             ImageView cardView = new ImageView(this);
             @SuppressLint("DiscouragedApi") int resId = getResources().getIdentifier( card.getImageName() , "drawable", getPackageName());
             cardView.setImageResource(resId);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
-            params.setMargins(10, 0, 10, 0);
+            // Apply a negative margin to overlap the cards
+            if (i > 0) {
+                params.setMargins(-(cardWidth / 2), 0, 0, 0);
+            } else {
+                params.setMargins(0, 0, 0, 0);
+            }
             cardView.setLayoutParams(params);
             playerHandView.addView(cardView);
         }
@@ -108,10 +114,16 @@ public class MainActivity extends AppCompatActivity {
         charlieCardsView.removeAllViews();
 
         for (int i = 0; i < game.getBotPlayers().get(0).getHand().size(); i++) {
+            Card card = game.getBotPlayers().get(0).getHand().get(i);
             ImageView cardBackView = new ImageView(this);
             cardBackView.setImageResource(R.drawable.card_back);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardHeight , cardWidth);
-            params.setMargins(0, 10, 0, 10);
+            // Apply a negative margin to overlap the cards
+            if (i > 0) {
+                params.setMargins(0, -(cardHeight / 2), 0, 0);
+            } else {
+                params.setMargins(0, 0, 0, 0);
+            }
             cardBackView.setLayoutParams(params);
             cardBackView.setRotation(90);
             aliceCardsView.addView(cardBackView);
@@ -121,7 +133,12 @@ public class MainActivity extends AppCompatActivity {
             ImageView cardBackView = new ImageView(this);
             cardBackView.setImageResource(R.drawable.card_back);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
-            params.setMargins(10, 0, 10, 0);
+            // Apply a negative margin to overlap the cards
+            if (i > 0) {
+                params.setMargins(-(cardWidth / 2), 0, 0, 0);
+            } else {
+                params.setMargins(0, 0, 0, 0);
+            }
             cardBackView.setLayoutParams(params);
             bobCardsView.addView(cardBackView);
         }
@@ -130,7 +147,12 @@ public class MainActivity extends AppCompatActivity {
             ImageView cardBackView = new ImageView(this);
             cardBackView.setImageResource(R.drawable.card_back);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardHeight , cardWidth);
-            params.setMargins(0, 10, 0, 10);
+            // Apply a negative margin to overlap the cards
+            if (i > 0) {
+                params.setMargins(0, -(cardHeight / 2), 0, 0);
+            } else {
+                params.setMargins(0, 0, 0, 0);
+            }
             cardBackView.setLayoutParams(params);
             cardBackView.setRotation(90);
             charlieCardsView.addView(cardBackView);

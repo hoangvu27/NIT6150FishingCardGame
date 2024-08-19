@@ -3,7 +3,7 @@ package com.example.fishingcardgame;
 public class Card {
     private String suit;
     private String rank;
-    public static int cardWidth = 40;
+    public static int cardWidth = 60;
     public static int cardHeight = 90;
 
     public Card(String suit, String rank) {
