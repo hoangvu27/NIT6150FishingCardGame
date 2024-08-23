@@ -1,26 +1,26 @@
 package com.example.fishingcardgame;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Player {
     private String name;
-    private ArrayList<Card> hand;
+    private List<Card> hand;
+    private int score;
 
     public Player(String name) {
         this.name = name;
         this.hand = new ArrayList<>();
+        this.score = 0;
     }
 
-    public void drawCard(Deck deck) {
-        Card card = deck.drawCard();
-        if (card != null) {
-            hand.add(card);
-        }
+    public String getName() {
+        return name;
     }
 
-    public ArrayList<Card> getHand() {
+    public List<Card> getHand() {
         return hand;
     }
 
@@ -28,7 +28,25 @@ public class Player {
         hand.add(card);
     }
 
-    public boolean hasCard(String rank) {
+    public void addCards(List<Card> cards) {
+        hand.addAll(cards);
+    }
+
+    public void sortHand() {
+        hand.sort(Comparator.comparingInt(card -> rankToIndex(card.getRank())));
+    }
+
+    public List<String> getValidRanks() {
+        List<String> ranks = new ArrayList<>();
+        for (Card card : hand) {
+            if (!ranks.contains(card.getRank())) {
+                ranks.add(card.getRank());
+            }
+        }
+        return ranks;
+    }
+
+    public boolean hasRank(String rank) {
         for (Card card : hand) {
             if (card.getRank().equals(rank)) {
                 return true;
@@ -37,17 +55,84 @@ public class Player {
         return false;
     }
 
-    public ArrayList<Card> giveCards(String rank) {
-        ArrayList<Card> givenCards = new ArrayList<>();
-        for (int i = hand.size() - 1; i >= 0; i--) {
-            if (hand.get(i).getRank().equals(rank)) {
-                givenCards.add(hand.remove(i));
+    public List<Card> giveCards(String rank) {
+        List<Card> cardsToGive = new ArrayList<>();
+        hand.removeIf(card -> {
+            if (card.getRank().equals(rank)) {
+                cardsToGive.add(card);
+                return true;
             }
-        }
-        return givenCards;
+            return false;
+        });
+        return cardsToGive;
     }
 
-    public String getName() {
-        return name;
+    public List<String> checkForSets() {
+        List<String> collectedRanks = new ArrayList<>();
+        int[] rankCounts = new int[13];  // Index represents rank (2-10, J, Q, K, A)
+
+        for (Card card : hand) {
+            int rankIndex = rankToIndex(card.getRank());
+            rankCounts[rankIndex]++;
+        }
+
+        for (int i = 0; i < rankCounts.length; i++) {
+            if (rankCounts[i] == 4) {
+                collectedRanks.add(indexToRank(i));
+            }
+        }
+
+        return collectedRanks;
+    }
+
+    // Helper method to remove a collected set from the player's hand
+    public void removeSet(String rank) {
+        hand.removeIf(card -> card.getRank().equals(rank));
+    }
+
+    private int rankToIndex(String rank) {
+        switch (rank) {
+            case "2": return 0;
+            case "3": return 1;
+            case "4": return 2;
+            case "5": return 3;
+            case "6": return 4;
+            case "7": return 5;
+            case "8": return 6;
+            case "9": return 7;
+            case "10": return 8;
+            case "J": return 9;
+            case "Q": return 10;
+            case "K": return 11;
+            case "A": return 12;
+            default: return -1;
+        }
+    }
+
+    private String indexToRank(int index) {
+        switch (index) {
+            case 0: return "2";
+            case 1: return "3";
+            case 2: return "4";
+            case 3: return "5";
+            case 4: return "6";
+            case 5: return "7";
+            case 6: return "8";
+            case 7: return "9";
+            case 8: return "10";
+            case 9: return "J";
+            case 10: return "Q";
+            case 11: return "K";
+            case 12: return "A";
+            default: return null;
+        }
+    }
+
+    public void clearHand() {
+        hand.clear();
+    }
+
+    public boolean isHuman() {
+        return name.equals("Human");
     }
 }

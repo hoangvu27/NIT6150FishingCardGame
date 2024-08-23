@@ -21,6 +21,11 @@ public class Deck {
         Collections.shuffle(cards);
     }
 
+    // Shuffle the deck
+    public void shuffle() {
+        Collections.shuffle(cards);
+    }
+
     public Card drawCard() {
         if (!cards.isEmpty()) {
             return cards.remove(0);

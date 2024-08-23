@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                     game.playTurn(game.getHumanPlayer(), botPlayer, rank);
                     updatePlayerHandView();
                     updateBotCardsView();
-                    botTurn();
+//                    botTurn();
                 } else {
                     Toast.makeText(MainActivity.this, "Invalid bot selected", Toast.LENGTH_SHORT).show();
                 }
@@ -180,19 +180,36 @@ public class MainActivity extends AppCompatActivity {
         botSpinner.setAdapter(adapter);
     }
 
-    private void botTurn() {
-        Random random = new Random();
-        for (Player bot : game.getBotPlayers()) {
-            if (bot.getHand().isEmpty()) continue;
-            String rank = bot.getHand().get(random.nextInt(bot.getHand().size())).getRank();
-            Player target = game.getHumanPlayer();
-            if (random.nextBoolean() && !game.getBotPlayers().isEmpty()) {
-                target = game.getBotPlayers().get(random.nextInt(game.getBotPlayers().size()));
-            }
-            game.playTurn(bot, target, rank);
-            updatePlayerHandView();
-            updateBotCardsView();
-            statusText.setText(bot.getName() + " asked " + target.getName() + " for " + rank);
-        }
-    }
+//    public void botTurn(Player bot) {
+//        // Create a list of possible target players (excluding the bot itself)
+//        List<Player> validTargets = new ArrayList<>();
+//
+//        // Add all other players (human player and other bots)
+//        if (!humanPlayer.getHand().isEmpty()) {
+//            validTargets.add(humanPlayer);  // Add human player if not empty-handed
+//        }
+//
+//        for (Player otherBot : botPlayers) {
+//            if (!otherBot.equals(bot) && !otherBot.getHand().isEmpty()) {
+//                validTargets.add(otherBot);  // Add other bots excluding the current bot
+//            }
+//        }
+//
+//        // If no valid targets exist, return (this shouldn't usually happen)
+//        if (validTargets.isEmpty()) {
+//            return;
+//        }
+//
+//        // Select a random valid target
+//        Random random = new Random();
+//        Player targetPlayer = validTargets.get(random.nextInt(validTargets.size()));
+//
+//        // Bot asks the target player for a rank from its hand
+//        String rankToAsk = bot.getHand().get(random.nextInt(bot.getHand().size())).getRank();
+//        playTurn(bot, targetPlayer, rankToAsk);
+//
+//        // Update game state based on the bot's action
+//        System.out.println(bot.getName() + " asked " + targetPlayer.getName() + " for " + rankToAsk);
+//    }
+
 }
