@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
         // Loop through the human's hand and add each card as an ImageView
         for (Card card : bot.getHand()) {
-            ImageView cardView = new ImageView(this);
+            ImageView cardView = cardViewMap.get(card);
             cardView.setImageResource(R.drawable.card_back);
 
             if (bot == gameLogic.getBobPlayer()) {
@@ -528,8 +528,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         ViewGroup sourceHand = handViews.get(askedPlayer);
         ViewGroup targetHand = handViews.get(askingPlayer);
         ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
-        Log.d ("size", "check asked size " + askedPlayer.getHand().size());
-        Log.d ("size", "check asking size " + askingPlayer.getHand().size());
 
         AnimatorSet animatorSet = new AnimatorSet();
         List<Animator> animations = new ArrayList<>();
@@ -542,6 +540,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             cardView.setRotation(0);
             cardViews.add(cardView);
             if (cardView != null) {
+                cardViews.add(cardView);
                 ImageView animatedCardView = new ImageView(this);
                 @SuppressLint("DiscouragedApi") int resId = getResources().getIdentifier(card.getImageName(), "drawable", getPackageName());
                 animatedCardView.setImageResource(resId);
@@ -552,7 +551,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 animatedCardView.setX(location[0]);
                 animatedCardView.setY(location[1]);
 
-                sourceHand.removeView((cardView));
                 rootView.addView(animatedCardView);
                 animatedCardViewList.add(animatedCardView);
 
@@ -593,6 +591,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 // Remove the card views from the source hand and add them to the target hand
                 for (ImageView cardView : cardViews) {
                     if (cardView != null) {
+                        sourceHand.removeView((cardView));
+
 //                        rootView.removeView(cardView);
 //                        sourceHand.removeView((cardView));
 //                        targetHand.addView(cardView);
@@ -613,6 +613,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
                     }
                 }
+                Log.d("size" , "sourceHandView count: " + sourceHand.getChildCount() + "" );
                 for (int i = 0; i < animatedCardViewList.size(); i++) {
                     rootView.removeView(animatedCardViewList.get(i));
                 }
