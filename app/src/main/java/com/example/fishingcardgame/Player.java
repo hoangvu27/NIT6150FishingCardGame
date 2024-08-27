@@ -3,6 +3,7 @@ package com.example.fishingcardgame;
 import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 public class Player {
@@ -86,9 +87,22 @@ public class Player {
     }
 
     // Helper method to remove a collected set from the player's hand
-    public void removeSet(String rank) {
-        hand.removeIf(card -> card.getRank().equals(rank));
+    public ArrayList<Card> removeSet(String rank) {
+        ArrayList<Card> cardsRemoved = new ArrayList<>();
+        Iterator<Card> iterator = hand.iterator();  // Use an iterator for safe removal
+
+        // Iterate through the hand and remove cards of the given rank
+        while (iterator.hasNext()) {
+            Card aCard = iterator.next();
+            if (aCard.getRank().equals(rank)) {
+                cardsRemoved.add(aCard);  // Add the card to the removed list
+                iterator.remove();  // Safely remove the card from the hand
+            }
+        }
+
+        return cardsRemoved;  // Return the list of removed cards
     }
+
 
     private int rankToIndex(String rank) {
         switch (rank) {
