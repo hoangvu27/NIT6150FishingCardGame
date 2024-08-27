@@ -539,6 +539,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         for (Card card : cardsTrasnfered) {
 //            getCardViewFromHand(card, sourceHand);
             ImageView cardView = cardViewMap.get(card);
+            cardView.setRotation(0);
+            cardViews.add(cardView);
             if (cardView != null) {
                 animatedCardViewList.add(cardView);
 
@@ -558,9 +560,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
 //                rootView.addView(cardView);
 
-
-//                Log.d("pos", cardView.getX() + "_" + cardView.getY());
-//                Log.d("pos", "root: " + rootView.getX() + "_" + rootView.getY());
 
 //                targetHand.getChildAt(targetHand.getChildCount() - 1);  // ALTHOUGH TARGET HANDS RECEIVED CARDS, TARGET VIEW NOT YET GET CARDS
                 // ASSUMING THAT targetHand.getChildAt WILL WORK
@@ -602,25 +601,27 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //                        sourceHand.removeView((cardView));
                         targetHand.addView(cardView);
 //                        cardView.setX(0);
-//                        cardView.setY(0); // is this necessary ???
+                        cardView.setY(0); // is this necessary ???
                     }
                 }
                 for (int i = 0; i < animatedCardViewList.size(); i++) {
                     rootView.removeView(animatedCardViewList.get(i));
                 }
-                if (askingPlayer.isHuman()) {
-                    updateHumanHandView();
-                    updateBotHandView(askedPlayer);
-                } else if (askedPlayer.isHuman()) {
-                    updateHumanHandView();
-                    updateBotHandView(askingPlayer);
-                } else {
-                    updateBotHandView(askedPlayer);
-                    updateBotHandView(askingPlayer);
-                }
+
 
             }
+
         });
+        if (askingPlayer.isHuman()) {
+            updateHumanHandView();
+            updateBotHandView(askedPlayer);
+        } else if (askedPlayer.isHuman()) {
+            updateHumanHandView();
+            updateBotHandView(askingPlayer);
+        } else {
+            updateBotHandView(askedPlayer);
+            updateBotHandView(askingPlayer);
+        }
 
         //  EACH CARD WILL BE TRANSFERED SEPARATELY, NOT AT THE SAME TIME
         //  IF HUMAN GIVE CARD, THEN FLIP CARD
@@ -643,6 +644,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         AnimatorSet animatorSet = new AnimatorSet();
         List<Animator> animations = new ArrayList<>();
         ArrayList<ImageView> cardViews = new ArrayList<>();
+        ArrayList<ImageView> animatedCardViewList = new ArrayList<>();
 
         for (Card aCard : collectedCards) {
 //            getCardViewFromHand(aCard, scoringHand);
@@ -662,22 +664,27 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             animatedCardView.setX(cardPosition[0]);
             animatedCardView.setY(cardPosition[1]);
 
+            animatedCardViewList.add(animatedCardView);
+            scoringHand.removeView(tempCardView);
             rootView.addView(animatedCardView);
+
+            int[] deckPosition = new int[2];
+            deckLayout.getLocationOnScreen(deckPosition);
 
             //  HANDVIEW ALREADY HAVE  CARDVIEW
             ObjectAnimator moveX = null;
             ObjectAnimator moveY = null;
             if (scoringPlayer.isHuman()) {
                 moveX = ObjectAnimator.ofFloat(animatedCardView, "x", cardPosition[0]);
-                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", cardPosition[1] - 125);
+                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", deckPosition[1] );
             } else if (scoringPlayer == gameLogic.getBobPlayer()) {
                 moveX = ObjectAnimator.ofFloat(animatedCardView, "x", cardPosition[0]);
-                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", cardPosition[1] + 125);
+                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", deckPosition[1] );
             } else if (scoringPlayer == gameLogic.getAlicePlayer()) {
-                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", cardPosition[0] + 125);
+                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0] );
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", cardPosition[1]);
             } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
-                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", cardPosition[0] - 125);
+                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0] );
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", cardPosition[1]);
             }
             if (moveX != null && moveY != null) {
@@ -688,18 +695,17 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         animatorSet.playTogether(animations);
         animatorSet.setDuration(1000);  // Set the duration for all animations
         animatorSet.start();
-        for (ImageView tempCardView : cardViews ) {
-            scoringHand.removeView(tempCardView);
-        }
+//        for (ImageView tempCardView : cardViews ) {
+//            scoringHand.removeView(tempCardView);
+//        }
 
         // After the animation completes, update the UI
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                // Remove the cards from the player's hand and add them to the deck view
-                for (ImageView cardView : cardViews) {
+                for (ImageView animatedCardView : animatedCardViewList) {
 //                      // Remove from player's hand
-                    //  ASSUMING THAT CARDS DISAPPEAR AT THE END OF ANIMATION
+                    rootView.removeView(animatedCardView);
                 }
             }
         });
@@ -712,12 +718,16 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //        }, 1000);  // 1 second delay, adjust as needed
     }
 
-    public void requestResult(Player askingPlayer, boolean requestSuccess, String rankAsked, Player target, int numberOfCards) {
+    public void requestResult(Player askingPlayer, boolean requestSuccess, String rankAsked, Player target,
+                              int numberOfCards, boolean score) {
         String message = askingPlayer.getName() + " asked " + target.getName() + " about rank " + rankAsked + "\n";
         if (requestSuccess == false) {
             message += target.getName() + " does not have " + rankAsked + "\n" + askingPlayer.getName() + " turn is over";
         } else {
             message += target.getName() + " has " + numberOfCards + " rank " + rankAsked + "\n" + askingPlayer.getName() + " continues";
+        }
+        if (score == true ) {
+            message += "\n" + askingPlayer.getName() + " has 4 cards same rank and get 1 score";
         }
         statusText.setText(message);
     }

@@ -52,7 +52,7 @@ public class GameLogic {
         void updateHumanHandView();
 
         void requestResult(Player askingPlayer, boolean requestSuccess, String rankAsked,
-                           Player target, int numberCardReceived);
+                           Player target, int numberCardReceived, boolean score);
 
         void disableButtons();
 
@@ -152,6 +152,7 @@ public class GameLogic {
     // Handle the human's turn through UI input
     public void humanTurn(Player target, String rankAsked) {
         boolean requestSuccess;
+        boolean score = false;
         int numberCardReceived = 0;
         if (target.hasRank(rankAsked)) {
             List<Card> cardsReceived = target.giveCards(rankAsked);
@@ -173,8 +174,8 @@ public class GameLogic {
                 gameListener.disableButtons();
             }
         }
-        checkForCollectedSets(humanPlayer);
-        gameListener.requestResult(humanPlayer , requestSuccess, rankAsked, target, numberCardReceived);
+        score = checkForCollectedSets(humanPlayer);
+        gameListener.requestResult(humanPlayer , requestSuccess, rankAsked, target, numberCardReceived, score);
     }
 
     // Simulate a bot's turn, returns true if the turn should continue
@@ -185,13 +186,14 @@ public class GameLogic {
 
         boolean requestSuccess;
         int numberCardReceived = 0;
+        boolean score = false;
 
         if (target.hasRank(rankAsked)) {
             List<Card> cardsReceived = target.giveCards(rankAsked);
             bot.addCards(cardsReceived);
             requestSuccess = true;
             numberCardReceived = cardsReceived.size();
-            gameListener.transferCardAnimation(target , humanPlayer, cardsReceived);
+            gameListener.transferCardAnimation(target , bot, cardsReceived);
         } else {
             Card temp = deck.drawCard();
             bot.addCard(temp);
@@ -207,8 +209,8 @@ public class GameLogic {
             }
             setNextPlayer(this.currentPlayer);
         }
-        checkForCollectedSets(bot);  // Check for any collected sets
-        gameListener.requestResult(bot , requestSuccess, rankAsked, target, numberCardReceived);
+        score = checkForCollectedSets(bot);  // Check for any collected sets
+        gameListener.requestResult(bot , requestSuccess, rankAsked, target, numberCardReceived, score);
     }
 
     // Check if the round is over
@@ -222,7 +224,8 @@ public class GameLogic {
 //    }
 
     // Check for collected sets of 4 cards of the same rank
-    private void checkForCollectedSets(Player player) {
+    private boolean checkForCollectedSets(Player player) {
+        boolean score = false;
         List<String> collectedRanks = player.checkForSets();
         for (String rank : collectedRanks) {
             if (player.isHuman()) {
@@ -235,10 +238,12 @@ public class GameLogic {
             totalRoundPoint++;
             gameListener.scorePoint(player, collectedCards);
             gameListener.onScoreUpdate(humanScore, botScores);
+            score = true;
         }
         if (player == humanPlayer) {
             gameListener.updateSpinner();
         }
+        return score;
     }
 
     // End the round and clear the players' hands
