@@ -198,10 +198,9 @@ public class GameLogic {
             Card temp = deck.drawCard();
             bot.addCard(temp);
             if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
+
             this.cardIndex = 0;
             requestSuccess = false;
-
-            gameListener.updateBotHandView(bot);
             gameListener.onCardDistributed(bot ,temp);
 
             if (currentPlayer == getCharliePlayer()) {

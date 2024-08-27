@@ -234,10 +234,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         // Loop through the human's hand and add each card as an ImageView
         for (Card card : gameLogic.getHumanPlayer().getHand()) {
             ImageView cardView = cardViewMap.get(card);
-
             // Set the appropriate drawable based on the card's rank and suit
             cardView.setImageResource(getCardDrawable(card));  // This is a custom method, see below
-
             // Set the layout params (size, margins, etc.)
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
             params.setMargins(-cardWidth *3 / 4, 0, 0, 0); // Overlap cards slightly, adjust as needed
@@ -530,6 +528,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         ViewGroup sourceHand = handViews.get(askedPlayer);
         ViewGroup targetHand = handViews.get(askingPlayer);
         ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
+        Log.d ("size", "check asked size " + askedPlayer.getHand().size());
+        Log.d ("size", "check asking size " + askingPlayer.getHand().size());
 
         AnimatorSet animatorSet = new AnimatorSet();
         List<Animator> animations = new ArrayList<>();
@@ -542,8 +542,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             cardView.setRotation(0);
             cardViews.add(cardView);
             if (cardView != null) {
-                animatedCardViewList.add(cardView);
-
                 ImageView animatedCardView = new ImageView(this);
                 @SuppressLint("DiscouragedApi") int resId = getResources().getIdentifier(card.getImageName(), "drawable", getPackageName());
                 animatedCardView.setImageResource(resId);
@@ -555,8 +553,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 animatedCardView.setY(location[1]);
 
                 sourceHand.removeView((cardView));
-                animatedCardViewList.add(animatedCardView);
                 rootView.addView(animatedCardView);
+                animatedCardViewList.add(animatedCardView);
 
 //                rootView.addView(cardView);
 
@@ -578,8 +576,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 // Create animations to move the card from source hand to target hand
 //                ObjectAnimator moveX = ObjectAnimator.ofFloat(cardView, "x", targetPosition[0]);
 //                ObjectAnimator moveY = ObjectAnimator.ofFloat(cardView, "y", targetPosition[1]);
-                Log.d("position", "children : " + targetHand.getChildCount() );
-                Log.d("position", "position is " + " " + targetPosition[0] + " " + targetPosition[1] );
                 ObjectAnimator moveX = ObjectAnimator.ofFloat(animatedCardView, "x", targetPosition[0]);
                 ObjectAnimator moveY = ObjectAnimator.ofFloat(animatedCardView, "y", targetPosition[1]);
 
@@ -599,29 +595,58 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                     if (cardView != null) {
 //                        rootView.removeView(cardView);
 //                        sourceHand.removeView((cardView));
-                        targetHand.addView(cardView);
+//                        targetHand.addView(cardView);
+//                        ImageView tempView = (ImageView) targetHand.getChildAt(targetHand.getChildCount()-1);
 //                        cardView.setX(0);
-                        cardView.setY(0); // is this necessary ???
+//                        cardView.setY(0);
+//                        int spaceIndex = targetHand.getChildCount();
+//                        if ( askingPlayer == gameLogic.getBobPlayer() || askingPlayer.isHuman() ) {
+//                            cardView.setX(spaceIndex * cardWidth * 3 /4 );
+//                        } else {
+//                            cardView.setX(0);
+//                        }
+//                        if ( askingPlayer == gameLogic.getBobPlayer() || askingPlayer.isHuman() ) {
+//                            cardView.setY(0); // is this necessary ???
+//                        } else {
+//                            cardView.setY(spaceIndex * cardWidth * 3 /4 ); // is this necessary ???
+//                        }
+
                     }
                 }
                 for (int i = 0; i < animatedCardViewList.size(); i++) {
                     rootView.removeView(animatedCardViewList.get(i));
                 }
-
+                if (askingPlayer.isHuman()) {
+                    updateHumanHandView();
+                    updateBotHandView(askedPlayer);
+                } else if (askedPlayer.isHuman()) {
+                    updateHumanHandView();
+                    updateBotHandView(askingPlayer);
+                } else {
+                    updateBotHandView(askedPlayer);
+                    updateBotHandView(askingPlayer);
+                }
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (askingPlayer.isHuman()) {
+//                            updateHumanHandView();
+//                            updateBotHandView(askedPlayer);
+//                        } else if (askedPlayer.isHuman()) {
+//                            updateHumanHandView();
+//                            updateBotHandView(askingPlayer);
+//                        } else {
+//                            updateBotHandView(askedPlayer);
+//                            updateBotHandView(askingPlayer);
+//                        }
+//                    }
+//                }, 1500);
 
             }
 
         });
-        if (askingPlayer.isHuman()) {
-            updateHumanHandView();
-            updateBotHandView(askedPlayer);
-        } else if (askedPlayer.isHuman()) {
-            updateHumanHandView();
-            updateBotHandView(askingPlayer);
-        } else {
-            updateBotHandView(askedPlayer);
-            updateBotHandView(askingPlayer);
-        }
+
+
 
         //  EACH CARD WILL BE TRANSFERED SEPARATELY, NOT AT THE SAME TIME
         //  IF HUMAN GIVE CARD, THEN FLIP CARD
