@@ -35,7 +35,6 @@ public class GameLogic {
 
     // Interface to communicate with the Android UI
     public interface GameListener {
-        void onHumanTurnStart(Player currentPlayer, List<String> validRanks);
         void onTurnEnd();
         void onScoreUpdate(int humanScore, int[] botScores);
         void onBotAsk(Player bot, Player target, String rankAsked);
@@ -141,50 +140,6 @@ public class GameLogic {
         gameListener.playRound();
     }
 
-    // Simulate a round of gameplay
-//    void playRound() {
-//    boolean roundOver = false;
-//        while (roundOver == false) {
-//            for (Player player : turnOrder) {
-//                if (player.getHand().isEmpty()) {
-//                    gameListener.playerEmpty();
-//                    // !!!  NEED TO NOTIFY GAMELISTER
-//                    continue;  // Skip players with no cards
-//                }
-//
-//                continueTurn = true;
-//                while (continueTurn == true && !isRoundOver()) {
-//                    player.sortHand();  // UPDATE UI
-//                    Log.d("tag", "after sort hand, inside playRound");
-////                    nextButtonClicked = false;
-//                    if (player.isHuman()) {
-////                        waitingForHumanInput = true;
-//                        gameListener.onHumanTurnStart(humanPlayer, humanPlayer.getValidRanks());
-//                        // Wait for UI to trigger the human's move
-////                        continueTurn = humanTurn(targetBot, chosenRank);
-//                        return;
-//                    } else {
-//                        continueTurn = botTurn(player);
-//                    }
-//
-//                    // Notify the UI to update scores after each turn
-//                    gameListener.onScoreUpdate(humanScore, botScores);
-//
-//                    if (isRoundOver()) {
-//                        roundOver = true;
-//                        break;
-//                    }
-//
-//                }
-//
-//                // End the round or game if all cards are collected
-//                if (roundOver) {
-//                    gameListener.onTurnEnd();
-//                    break;
-//                }
-//            }
-//        }
-//    }
 
     // Handle the human's turn through UI input
     public void humanTurn(Player target, String rankAsked) {
@@ -202,8 +157,8 @@ public class GameLogic {
             Card temp = deck.drawCard();
             humanPlayer.addCard(temp);
             this.cardIndex = 0;
+//            gameListener.updateHumanHandView();
             gameListener.onCardDistributed(humanPlayer ,temp);
-            gameListener.updateHumanHandView();
 //            checkForCollectedSets(bot);
             setNextPlayer(this.currentPlayer);
 //            if ( currentPlayer == getAlicePlayer()) { currentPlayer = getBobPlayer() ;}
@@ -239,8 +194,8 @@ public class GameLogic {
             Card temp = deck.drawCard();
             bot.addCard(temp);
             this.cardIndex = 0;
-            gameListener.onCardDistributed(bot ,temp);
             gameListener.updateBotHandView(bot);
+            gameListener.onCardDistributed(bot ,temp);
 //            checkForCollectedSets(bot);
             if (currentPlayer == getCharliePlayer()) {
                 gameListener.enableButtons();
