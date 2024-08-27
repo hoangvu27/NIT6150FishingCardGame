@@ -69,9 +69,14 @@ public class GameLogic {
     // Simulates starting the game
     public void startGame() {
         setupRound();
+//        testAnimation();
         playRound();  //  enable button
 //         endRound();  // prepare a new round & clean up old round or end game
 
+    }
+
+    private void testAnimation() {
+        gameListener.showCardAnimation();
     }
 
     // Setup the round by shuffling the deck and distributing cards
@@ -206,7 +211,7 @@ public class GameLogic {
 //            else { currentPlayer = getHumanPlayer(); }
             requestSuccess = false;
             if (currentPlayer == getCharliePlayer()) {
-                gameListener.enableButtons();
+                gameListener.disableButtons();
             }
         }
         checkForCollectedSets(humanPlayer);  // Check for any collected sets
@@ -215,7 +220,39 @@ public class GameLogic {
 
     // Simulate a bot's turn, returns true if the turn should continue
     void botTurn(Player bot) {
+        List<Player> validTargets = getValidTargets(bot);
+        Player target = validTargets.get((int) (Math.random() * validTargets.size()));
+        String rankAsked = bot.getValidRanks().get((int) (Math.random() * bot.getValidRanks().size()));
 
+        boolean requestSuccess;
+        int numberCardReceived = 0;
+
+        if (target.hasRank(rankAsked)) {
+            List<Card> cardsReceived = target.giveCards(rankAsked);
+            bot.addCards(cardsReceived);
+//            checkForCollectedSets(bot);  // Check for any collected sets
+            // Continue the turn. Thus, currentPlayer is same
+            requestSuccess = true;
+            numberCardReceived = cardsReceived.size();
+            gameListener.transferCardAnimation(target , humanPlayer, cardsReceived);
+        } else {
+            Card temp = deck.drawCard();
+            bot.addCard(temp);
+            this.cardIndex = 0;
+            gameListener.onCardDistributed(bot ,temp);
+            gameListener.updateBotHandView(bot);
+//            checkForCollectedSets(bot);
+            if (currentPlayer == getCharliePlayer()) {
+                gameListener.enableButtons();
+            }
+            setNextPlayer(this.currentPlayer);
+//            if ( currentPlayer == getAlicePlayer()) { currentPlayer = getBobPlayer() ;}
+//            else if ( currentPlayer == getBobPlayer() ) { currentPlayer = getCharliePlayer() ; }
+//            else { currentPlayer = getHumanPlayer(); }
+            requestSuccess = false;
+        }
+        checkForCollectedSets(bot);  // Check for any collected sets
+        gameListener.requestResult(bot , requestSuccess, rankAsked, target, numberCardReceived);
     }
 
     // Check if the round is over
