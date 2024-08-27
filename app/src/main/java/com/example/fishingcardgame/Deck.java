@@ -36,5 +36,9 @@ public class Deck {
     public int getSize() {
         return cards.size();
     }
+
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }
 }
 

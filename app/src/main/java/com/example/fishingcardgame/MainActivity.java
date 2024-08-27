@@ -5,6 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     private boolean waitingForBotActionResult = false;
     private ViewGroup deckLayout;
     private Map<Player, ViewGroup> handViews;
+    private Map<Card, ImageView> cardViewMap = new HashMap<>();
 //    private int cardIndex;
 
 
@@ -110,7 +113,15 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         botSpinner.setAdapter(botAdapter);
         gameLogic.startGame();
 
+    }
 
+    @Override
+    public void onDeckEmpty() {
+        deckLayout.setVisibility(View.GONE);  // Hide the deck when no cards are left
+    }
+
+    public void refillDeck() {
+        deckLayout.setVisibility(View.VISIBLE);
     }
 
     public void playRound() {
@@ -139,6 +150,12 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         });
     }
 
+    public void updateSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, gameLogic.getHumanPlayer().getValidRanks());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        rankSpinner.setAdapter(adapter);
+    }
+
     private void onNextButtonClicked() {
         if (gameLogic.isGameOver()) {
 //         notify UI
@@ -152,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //          ALl handView should be empty, but clear all UI if necessary
             statusText.setText("Round is over. Click next to start next round");
             gameLogic.setStartNextRound(true);
+            cardViewMap.clear();
             return;
         }
         if (gameLogic.isStartNextRound()) {
@@ -167,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         }
 
         if (gameLogic.currentPlayer.isHuman()) {
-//            if (currentPlayer.getHand().size() == 0) { };
             updateHumanHandView();
             Player targetBot = getSelectedBot();
             String selectedRank = getSelectedRank();
@@ -216,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
         // Loop through the human's hand and add each card as an ImageView
         for (Card card : gameLogic.getHumanPlayer().getHand()) {
-            ImageView cardView = new ImageView(this);
+            ImageView cardView = cardViewMap.get(card);
 
             // Set the appropriate drawable based on the card's rank and suit
             cardView.setImageResource(getCardDrawable(card));  // This is a custom method, see below
@@ -335,46 +352,45 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     @SuppressLint("ResourceType")
     @Override
     public void showCardAnimation() {
-        @SuppressLint("WrongViewCast") FrameLayout rootView = findViewById(R.id.rootLayout);
-        ViewOverlay overlay = rootView.getOverlay();
-        AnimatorSet animatorSet = new AnimatorSet();
-
-        ImageView cardView = new ImageView(this);
-//        cardView.setTag(card);
-        cardView.setImageResource(R.drawable.card_back);
-        LinearLayout.LayoutParams newParams = new LinearLayout.LayoutParams(cardHeight, cardWidth);
-        cardView.setLayoutParams(newParams);
-        cardView.setX(80);
-        cardView.setY(80);
-        int[] sourcePosition = new int[2];
-        cardView.getLocationOnScreen(sourcePosition);
-
-        ImageView animatedCardView = new ImageView(this);
-        animatedCardView.setImageResource(R.drawable.card_back);
-        animatedCardView.setLayoutParams(new FrameLayout.LayoutParams(cardView.getWidth(), cardView.getHeight()));
-
-        animatedCardView.setX(sourcePosition[0]);
-        animatedCardView.setY(sourcePosition[1]);
-
-//        overlay.add(animatedCardView);
-
-//        int[] targetPosition = new int[2];
-//        playerHandView.getLocationOnScreen(targetPosition);
-        ObjectAnimator moveX = ObjectAnimator.ofFloat(animatedCardView, "x", 200);
-        ObjectAnimator moveY = ObjectAnimator.ofFloat(animatedCardView, "y", 200);
-
-        animatorSet.playTogether(moveX, moveY);
-        animatorSet.setDuration(1000);  // Move animation duration
-        animatorSet.start();
+//        @SuppressLint("WrongViewCast") FrameLayout rootView = findViewById(R.id.rootLayout);
+//        ViewOverlay overlay = rootView.getOverlay();
+//        AnimatorSet animatorSet = new AnimatorSet();
+//
+//        ImageView cardView = new ImageView(this);
+////        cardView.setTag(card);
+//        cardView.setImageResource(R.drawable.card_back);
+//        LinearLayout.LayoutParams newParams = new LinearLayout.LayoutParams(cardHeight, cardWidth);
+//        cardView.setLayoutParams(newParams);
+//        cardView.setX(80);
+//        cardView.setY(80);
+//        int[] sourcePosition = new int[2];
+//        cardView.getLocationOnScreen(sourcePosition);
+//
+//        ImageView animatedCardView = new ImageView(this);
+//        animatedCardView.setImageResource(R.drawable.card_back);
+//        animatedCardView.setLayoutParams(new FrameLayout.LayoutParams(cardView.getWidth(), cardView.getHeight()));
+//
+//        animatedCardView.setX(sourcePosition[0]);
+//        animatedCardView.setY(sourcePosition[1]);
+//
+////        overlay.add(animatedCardView);
+//
+////        int[] targetPosition = new int[2];
+////        playerHandView.getLocationOnScreen(targetPosition);
+//        ObjectAnimator moveX = ObjectAnimator.ofFloat(animatedCardView, "x", 200);
+//        ObjectAnimator moveY = ObjectAnimator.ofFloat(animatedCardView, "y", 200);
+//
+//        animatorSet.playTogether(moveX, moveY);
+//        animatorSet.setDuration(1000);  // Move animation duration
+//        animatorSet.start();
     }
 
     @Override
     public void onCardDistributed(Player player, Card card) {
-//        Log.d("tag", card.getRank() + " _ " + card.getSuit() + " onCardDistributed method");
         ImageView cardView = new ImageView(this);
-        cardView.setTag(card);
-        cardView.setImageResource(R.drawable.card_back);
-//        cardView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.card_back));
+        cardView.setTag(card); // it seems that this method of setting tag to find cardView not workcardView.setImageResource(R.drawable.card_back);
+        cardViewMap.put(card, cardView);
+        cardView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.card_back));
         if (player == gameLogic.getAlicePlayer() || player == gameLogic.getCharliePlayer()) {
             LinearLayout.LayoutParams newParams = new LinearLayout.LayoutParams(cardHeight, cardWidth);
             // Apply a negative margin to overlap the cards
@@ -471,7 +487,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                     handView.addView(cardView);
                     cardView.setX(0);  // Reset X to be inside the handView
                     cardView.setY(0);
-
                 }
             });
         }
@@ -522,14 +537,14 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         ArrayList<ImageView> animatedCardViewList = new ArrayList<ImageView>();
 
         for (Card card : cardsTrasnfered) {
-            ImageView cardView = getCardViewFromHand(card, sourceHand);  // Using the map approach
+//            getCardViewFromHand(card, sourceHand);
+            ImageView cardView = cardViewMap.get(card);
             if (cardView != null) {
                 animatedCardViewList.add(cardView);
 
                 ImageView animatedCardView = new ImageView(this);
                 @SuppressLint("DiscouragedApi") int resId = getResources().getIdentifier(card.getImageName(), "drawable", getPackageName());
                 animatedCardView.setImageResource(resId);
-
                 animatedCardView.setLayoutParams(new LinearLayout.LayoutParams(cardView.getLayoutParams().width, cardView.getLayoutParams().height));
 
                 int[] location = new int[2];
@@ -557,12 +572,15 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 //  ==> EASIEST SOLUTION IS TO CLONE CARDS FOR ANIMATION  & updateBotHand
                 //  updateBotHand & updateHumanHand can turn card face to up or down
                 int[] targetPosition = new int[2];
-                targetHand.getChildAt(targetHand.getChildCount()-1).getLocationOnScreen(targetPosition);
+                targetHand.getLocationOnScreen(targetPosition);
+//                ImageView tempView = (ImageView) targetHand.getChildAt(targetHand.getChildCount()-1);
+//                tempView.getLocationOnScreen(targetPosition);
 
                 // Create animations to move the card from source hand to target hand
 //                ObjectAnimator moveX = ObjectAnimator.ofFloat(cardView, "x", targetPosition[0]);
 //                ObjectAnimator moveY = ObjectAnimator.ofFloat(cardView, "y", targetPosition[1]);
-
+                Log.d("position", "children : " + targetHand.getChildCount() );
+                Log.d("position", "position is " + " " + targetPosition[0] + " " + targetPosition[1] );
                 ObjectAnimator moveX = ObjectAnimator.ofFloat(animatedCardView, "x", targetPosition[0]);
                 ObjectAnimator moveY = ObjectAnimator.ofFloat(animatedCardView, "y", targetPosition[1]);
 
@@ -578,11 +596,11 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             @Override
             public void onAnimationEnd(Animator animation) {
                 // Remove the card views from the source hand and add them to the target hand
-                for (ImageView cardView : animatedCardViewList) {
+                for (ImageView cardView : cardViews) {
                     if (cardView != null) {
 //                        rootView.removeView(cardView);
 //                        sourceHand.removeView((cardView));
-//                        targetHand.addView(cardView);
+                        targetHand.addView(cardView);
 //                        cardView.setX(0);
 //                        cardView.setY(0); // is this necessary ???
                     }
@@ -627,13 +645,14 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         ArrayList<ImageView> cardViews = new ArrayList<>();
 
         for (Card aCard : collectedCards) {
-            ImageView tempCardView = getCardViewFromHand(aCard, scoringHand);
+//            getCardViewFromHand(aCard, scoringHand);
+            ImageView tempCardView = cardViewMap.get(aCard);
             cardViews.add(tempCardView);
 
             ImageView animatedCardView = new ImageView(this);
             @SuppressLint("DiscouragedApi") int resId = getResources().getIdentifier(aCard.getImageName(), "drawable", getPackageName());
             animatedCardView.setImageResource(resId);
-            animatedCardView.setLayoutParams(new LinearLayout.LayoutParams(tempCardView.getLayoutParams().width, tempCardView.getLayoutParams().height));
+            animatedCardView.setLayoutParams(new LinearLayout.LayoutParams(tempCardView.getWidth(), tempCardView.getHeight()));
             if (scoringPlayer == gameLogic.getCharliePlayer() || scoringPlayer == gameLogic.getAlicePlayer()) {
                 animatedCardView.setRotation(90);
             }
@@ -643,7 +662,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             animatedCardView.setX(cardPosition[0]);
             animatedCardView.setY(cardPosition[1]);
 
-            scoringHand.removeView(tempCardView);
             rootView.addView(animatedCardView);
 
             //  HANDVIEW ALREADY HAVE  CARDVIEW
@@ -670,6 +688,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         animatorSet.playTogether(animations);
         animatorSet.setDuration(1000);  // Set the duration for all animations
         animatorSet.start();
+        for (ImageView tempCardView : cardViews ) {
+            scoringHand.removeView(tempCardView);
+        }
 
         // After the animation completes, update the UI
         animatorSet.addListener(new AnimatorListenerAdapter() {

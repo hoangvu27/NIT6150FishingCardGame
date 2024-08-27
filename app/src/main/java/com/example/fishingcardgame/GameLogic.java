@@ -24,7 +24,7 @@ public class GameLogic {
 
     public GameLogic(GameListener listener) {
         this.gameListener = listener;
-        deck = new Deck();
+//        deck = new Deck();
         humanPlayer = new Player("Human");
         botPlayers = new ArrayList<>();
         botPlayers.add(new Player("Alice"));
@@ -63,6 +63,12 @@ public class GameLogic {
         void scorePoint(Player aPlayer, ArrayList<Card> collectedCards );
 
         void updateBotHandView(Player bot);
+
+        void updateSpinner();
+
+        void onDeckEmpty();
+
+        void refillDeck();
     }
 
     // Simulates starting the game
@@ -80,6 +86,8 @@ public class GameLogic {
 
     // Setup the round by shuffling the deck and distributing cards
     void setupRound() {
+        deck = new Deck();
+        gameListener.refillDeck();
         determineTurnOrder();
         currentPlayer = turnOrder.get(0);
         deck.shuffle();
@@ -148,28 +156,24 @@ public class GameLogic {
         if (target.hasRank(rankAsked)) {
             List<Card> cardsReceived = target.giveCards(rankAsked);
             humanPlayer.addCards(cardsReceived);
-//            checkForCollectedSets(bot);  // Check for any collected sets
-            // Continue the turn. Thus, currentPlayer is same
             requestSuccess = true;
             numberCardReceived = cardsReceived.size();
             gameListener.transferCardAnimation(target , humanPlayer, cardsReceived);
         } else {
             Card temp = deck.drawCard();
             humanPlayer.addCard(temp);
+            if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
+
             this.cardIndex = 0;
-//            gameListener.updateHumanHandView();
             gameListener.onCardDistributed(humanPlayer ,temp);
-//            checkForCollectedSets(bot);
-            setNextPlayer(this.currentPlayer);
-//            if ( currentPlayer == getAlicePlayer()) { currentPlayer = getBobPlayer() ;}
-//            else if ( currentPlayer == getBobPlayer() ) { currentPlayer = getCharliePlayer() ; }
-//            else { currentPlayer = getHumanPlayer(); }
             requestSuccess = false;
+
+            setNextPlayer(this.currentPlayer);
             if (currentPlayer == getCharliePlayer()) {
                 gameListener.disableButtons();
             }
         }
-        checkForCollectedSets(humanPlayer);  // Check for any collected sets
+        checkForCollectedSets(humanPlayer);
         gameListener.requestResult(humanPlayer , requestSuccess, rankAsked, target, numberCardReceived);
     }
 
@@ -185,26 +189,23 @@ public class GameLogic {
         if (target.hasRank(rankAsked)) {
             List<Card> cardsReceived = target.giveCards(rankAsked);
             bot.addCards(cardsReceived);
-//            checkForCollectedSets(bot);  // Check for any collected sets
-            // Continue the turn. Thus, currentPlayer is same
             requestSuccess = true;
             numberCardReceived = cardsReceived.size();
             gameListener.transferCardAnimation(target , humanPlayer, cardsReceived);
         } else {
             Card temp = deck.drawCard();
             bot.addCard(temp);
+            if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
             this.cardIndex = 0;
+            requestSuccess = false;
+
             gameListener.updateBotHandView(bot);
             gameListener.onCardDistributed(bot ,temp);
-//            checkForCollectedSets(bot);
+
             if (currentPlayer == getCharliePlayer()) {
                 gameListener.enableButtons();
             }
             setNextPlayer(this.currentPlayer);
-//            if ( currentPlayer == getAlicePlayer()) { currentPlayer = getBobPlayer() ;}
-//            else if ( currentPlayer == getBobPlayer() ) { currentPlayer = getCharliePlayer() ; }
-//            else { currentPlayer = getHumanPlayer(); }
-            requestSuccess = false;
         }
         checkForCollectedSets(bot);  // Check for any collected sets
         gameListener.requestResult(bot , requestSuccess, rankAsked, target, numberCardReceived);
@@ -233,8 +234,11 @@ public class GameLogic {
             ArrayList<Card> collectedCards = player.removeSet(rank);
             totalRoundPoint++;
             gameListener.scorePoint(player, collectedCards);
+            gameListener.onScoreUpdate(humanScore, botScores);
         }
-        gameListener.onScoreUpdate(humanScore, botScores);  // Notify UI to update the scores
+        if (player == humanPlayer) {
+            gameListener.updateSpinner();
+        }
     }
 
     // End the round and clear the players' hands
