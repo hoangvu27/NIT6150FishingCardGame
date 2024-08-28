@@ -181,26 +181,54 @@
         android:layout_marginBottom="10dp"
         android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/rankSpinner"
+<!--        <Spinner-->
+<!--            android:id="@+id/rankSpinner"-->
+<!--            android:layout_width="60dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:background="@drawable/spinner_background"-->
+<!--            />-->
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true" />
+            android:background="@drawable/spinner_background"
+            android:padding="2dp">
 
-        <Spinner
-            android:id="@+id/botSpinner"
+            <Spinner
+                android:id="@+id/rankSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/askButton"
-            android:layout_centerHorizontal="true" />
+            android:background="@drawable/spinner_background"
+            android:padding="2dp">
+
+            <Spinner
+                android:id="@+id/botSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+        </RelativeLayout>
+
 
         <Button
             android:id="@+id/nextButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+            android:textSize="16sp"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
             android:text="Next" />
+
+        <ImageButton
+            android:id="@+id/refreshHandButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/organize_card"" />
 
         <LinearLayout
             android:layout_width="match_parent"

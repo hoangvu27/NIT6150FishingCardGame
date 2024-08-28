@@ -5,22 +5,16 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOverlay;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -61,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     private ViewGroup deckLayout;
     private Map<Player, ViewGroup> handViews;
     private Map<Card, ImageView> cardViewMap = new HashMap<>();
+
+
+    Boolean refreshCard = false;
 //    private int cardIndex;
 
 
@@ -184,6 +181,16 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             return;
         }
 
+        if ( refreshCard == true ) {
+            updateHumanHandView();
+            updateBotHandView(gameLogic.getBobPlayer());
+            updateBotHandView(gameLogic.getAlicePlayer());
+            updateBotHandView(gameLogic.getCharliePlayer());
+            refreshCard = false;
+            return;
+        }
+
+
         if (gameLogic.currentPlayer.isHuman()) {
             updateHumanHandView();
             Player targetBot = getSelectedBot();
@@ -192,13 +199,33 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             if (targetBot != null && selectedRank != null) {
                 // Notify the game logic to process the human's turn
                 gameLogic.humanTurn(targetBot, selectedRank);
+                refreshCard = true;
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        updateHumanHandView();
+//                    }
+//                }, 1500);
             } else {
                 statusText.setText("Please select a bot and a rank.");
             }
         } else {
             // Let the game logic handle the bot's turn
+//            Player tempPlayer = null;
+//            for (Player bot : gameLogic.getBotPlayers()) {
+//                if ( gameLogic.currentPlayer == bot ) {
+//                    tempPlayer = bot;
+//                }
+//            }
             updateBotHandView(gameLogic.currentPlayer);
             gameLogic.botTurn(gameLogic.currentPlayer);
+//            Player finalTempPlayer = tempPlayer;
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    updateBotHandView(finalTempPlayer);
+//                }
+//            }, 1500);
         }
         String humanCard ="";
         String aliceCard = "";
@@ -229,10 +256,26 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         LinearLayout humanHandView = findViewById(R.id.playerHand); // Ensure this ID matches your layout
 
         // Clear the current hand view before updating
+//        int[] locations = new int[2];
+//        humanHandView.getLocationOnScreen(locations);
         humanHandView.removeAllViews();
 
-        // Loop through the human's hand and add each card as an ImageView
-        for (Card card : gameLogic.getHumanPlayer().getHand()) {
+//        for (Card card : gameLogic.getHumanPlayer().getHand()) {
+//            ImageView cardView = cardViewMap.get(card);
+//            // Set the appropriate drawable based on the card's rank and suit
+//            cardView.setImageResource(getCardDrawable(card));  // This is a custom method, see below
+//            // Set the layout params (size, margins, etc.)
+//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
+//            params.setMargins(-cardWidth *3 / 4, 0, 0, 0); // Overlap cards slightly, adjust as needed
+//            // set (0,0,0,0) ???
+//            cardView.setLayoutParams(params);
+//
+//            humanHandView.addView(cardView);
+//            //  THERE  MIGHT BE DELAY SO THAT CARD APPEAR AFTER TRANSFER ANIMATION
+//        }
+
+        for (int i=0; i <  gameLogic.getHumanPlayer().getHand().size(); i++) {
+            Card card = gameLogic.getHumanPlayer().getHand().get(i);
             ImageView cardView = cardViewMap.get(card);
             // Set the appropriate drawable based on the card's rank and suit
             cardView.setImageResource(getCardDrawable(card));  // This is a custom method, see below
@@ -240,9 +283,12 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
             params.setMargins(-cardWidth *3 / 4, 0, 0, 0); // Overlap cards slightly, adjust as needed
             // set (0,0,0,0) ???
+//            params.gravity = Gravity.CENTER_HORIZONTAL;
             cardView.setLayoutParams(params);
 
             humanHandView.addView(cardView);
+            cardView.setX(i * cardWidth / 2);
+            cardView.setY(0);
             //  THERE  MIGHT BE DELAY SO THAT CARD APPEAR AFTER TRANSFER ANIMATION
         }
     }
@@ -447,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             destinationY = screenHeightPx / 2 - cardWidth;
         } else if (player == gameLogic.getBobPlayer()) {
             destinationX = screenWidthPx / 2 - cardWidth;
-            destinationY = 30;
+            destinationY = 5;
         } else {
 //            destinationX = screenWidthPx / 2 - 300 +  handCardIndex * (cardWidth * 3 / 4);  // Adjust for overlap
             destinationX = screenWidthPx / 2 - cardWidth;
@@ -540,7 +586,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             cardView.setRotation(0);
             cardViews.add(cardView);
             if (cardView != null) {
-                cardViews.add(cardView);
                 ImageView animatedCardView = new ImageView(this);
                 @SuppressLint("DiscouragedApi") int resId = getResources().getIdentifier(card.getImageName(), "drawable", getPackageName());
                 animatedCardView.setImageResource(resId);
@@ -595,10 +640,10 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
 //                        rootView.removeView(cardView);
 //                        sourceHand.removeView((cardView));
-//                        targetHand.addView(cardView);
+                        targetHand.addView(cardView);
 //                        ImageView tempView = (ImageView) targetHand.getChildAt(targetHand.getChildCount()-1);
-//                        cardView.setX(0);
-//                        cardView.setY(0);
+                        cardView.setX(0);
+                        cardView.setY(0);
 //                        int spaceIndex = targetHand.getChildCount();
 //                        if ( askingPlayer == gameLogic.getBobPlayer() || askingPlayer.isHuman() ) {
 //                            cardView.setX(spaceIndex * cardWidth * 3 /4 );
@@ -613,20 +658,19 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
                     }
                 }
-                Log.d("size" , "sourceHandView count: " + sourceHand.getChildCount() + "" );
                 for (int i = 0; i < animatedCardViewList.size(); i++) {
                     rootView.removeView(animatedCardViewList.get(i));
                 }
-                if (askingPlayer.isHuman()) {
-                    updateHumanHandView();
-                    updateBotHandView(askedPlayer);
-                } else if (askedPlayer.isHuman()) {
-                    updateHumanHandView();
-                    updateBotHandView(askingPlayer);
-                } else {
-                    updateBotHandView(askedPlayer);
-                    updateBotHandView(askingPlayer);
-                }
+//                if (askingPlayer.isHuman()) {
+//                    updateHumanHandView();
+//                    updateBotHandView(askedPlayer);
+//                } else if (askedPlayer.isHuman()) {
+//                    updateHumanHandView();
+//                    updateBotHandView(askingPlayer);
+//                } else {
+//                    updateBotHandView(askedPlayer);
+//                    updateBotHandView(askingPlayer);
+//                }
 //                new Handler().postDelayed(new Runnable() {
 //                    @Override
 //                    public void run() {
@@ -646,6 +690,21 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             }
 
         });
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (askingPlayer.isHuman()) {
+//                    updateHumanHandView();
+//                    updateBotHandView(askedPlayer);
+//                } else if (askedPlayer.isHuman()) {
+//                    updateHumanHandView();
+//                    updateBotHandView(askingPlayer);
+//                } else {
+//                    updateBotHandView(askedPlayer);
+//                    updateBotHandView(askingPlayer);
+//                }
+//            }
+//        }, 2000);
 
 
 
@@ -667,13 +726,19 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //        deckLayout.getLocationOnScreen(deckPosition);
         ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidthPx = displayMetrics.widthPixels;
+        int screenHeightPx = displayMetrics.heightPixels;
+
         AnimatorSet animatorSet = new AnimatorSet();
         List<Animator> animations = new ArrayList<>();
         ArrayList<ImageView> cardViews = new ArrayList<>();
         ArrayList<ImageView> animatedCardViewList = new ArrayList<>();
 
-        for (Card aCard : collectedCards) {
+        for (int i=0; i < collectedCards.size() ; i++) {
 //            getCardViewFromHand(aCard, scoringHand);
+            Card aCard = collectedCards.get(i);
             ImageView tempCardView = cardViewMap.get(aCard);
             cardViews.add(tempCardView);
 
@@ -685,13 +750,33 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 animatedCardView.setRotation(90);
             }
 
-            int[] cardPosition = new int[2];
-            tempCardView.getLocationOnScreen(cardPosition);
-            animatedCardView.setX(cardPosition[0]);
-            animatedCardView.setY(cardPosition[1]);
+//            int[] cardPosition = new int[2];
+//            tempCardView.getLocationOnScreen(cardPosition);
+//            animatedCardView.setX(cardPosition[0]);
+//            animatedCardView.setY(cardPosition[1]);
+//            Log.d("set" , "position of collected card " + " X " + cardPosition[0] + " "  + " Y " + cardPosition[1]);
+
+            float sourceX;
+            float sourceY;
+            // Calculate the final position of the card in the player's hand
+            if (scoringPlayer == gameLogic.getAlicePlayer()) {
+                sourceX = 30;  // instead of 0, should be 40 or 50
+                sourceY = screenHeightPx / 2 - 2 * cardWidth + i * cardWidth;  // middle point
+            } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
+                sourceX = screenWidthPx - cardHeight;  // screenWidthPx is in pixel while 200 is in dp. Plus. width and height of card
+                sourceY = screenHeightPx / 2 - 2 * cardWidth + i * cardWidth;
+            } else if (scoringPlayer == gameLogic.getBobPlayer()) {
+                sourceX = screenWidthPx / 2 - 2 * cardWidth + i * cardWidth;
+                sourceY = 5;
+            } else {
+//            destinationX = screenWidthPx / 2 - 300 +  handCardIndex * (cardWidth * 3 / 4);  // Adjust for overlap
+                sourceX = screenWidthPx / 2 - 2 * cardWidth + i * cardWidth;
+                sourceY = screenHeightPx - 2 * cardHeight;
+            }
+            animatedCardView.setX(sourceX);
+            animatedCardView.setY(sourceY);
 
             animatedCardViewList.add(animatedCardView);
-            scoringHand.removeView(tempCardView);
             rootView.addView(animatedCardView);
 
             int[] deckPosition = new int[2];
@@ -701,17 +786,17 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             ObjectAnimator moveX = null;
             ObjectAnimator moveY = null;
             if (scoringPlayer.isHuman()) {
-                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", cardPosition[0]);
+                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", sourceX);
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", deckPosition[1] );
             } else if (scoringPlayer == gameLogic.getBobPlayer()) {
-                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", cardPosition[0]);
+                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", sourceX);
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", deckPosition[1] );
             } else if (scoringPlayer == gameLogic.getAlicePlayer()) {
                 moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0] );
-                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", cardPosition[1]);
+                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", sourceY);
             } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
                 moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0] );
-                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", cardPosition[1]);
+                moveY = ObjectAnimator.ofFloat(animatedCardView, "y", sourceY );
             }
             if (moveX != null && moveY != null) {
                 animations.add(moveX);
@@ -730,8 +815,10 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             @Override
             public void onAnimationEnd(Animator animation) {
                 for (ImageView animatedCardView : animatedCardViewList) {
-//                      // Remove from player's hand
                     rootView.removeView(animatedCardView);
+                }
+                for (ImageView tempCardView : cardViews) {
+                    scoringHand.removeView(tempCardView);
                 }
             }
         });

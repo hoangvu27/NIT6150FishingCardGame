@@ -1,5 +1,6 @@
 package com.example.fishingcardgame;
 
+import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -170,9 +171,7 @@ public class GameLogic {
             requestSuccess = false;
 
             setNextPlayer(this.currentPlayer);
-            if (currentPlayer == getCharliePlayer()) {
-                gameListener.disableButtons();
-            }
+            gameListener.disableButtons();
         }
         score = checkForCollectedSets(humanPlayer);
         gameListener.requestResult(humanPlayer , requestSuccess, rankAsked, target, numberCardReceived, score);
@@ -235,8 +234,14 @@ public class GameLogic {
             }
             ArrayList<Card> collectedCards = player.removeSet(rank);
             totalRoundPoint++;
-            gameListener.scorePoint(player, collectedCards);
-            gameListener.onScoreUpdate(humanScore, botScores);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    gameListener.scorePoint(player, collectedCards);
+                    gameListener.onScoreUpdate(humanScore, botScores);
+                }
+            }, 2500);
             score = true;
         }
         if (player == humanPlayer) {

@@ -15,7 +15,7 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
-            android:screenOrientation="sensor"
+            android:screenOrientation="landscape"
             android:exported="true"
             android:theme="@style/Theme.FishingCardGame">
             <intent-filter>
