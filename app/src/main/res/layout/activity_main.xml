@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:elevation="5dp"/>
 
     <!-- Bob's Cards (Top) -->

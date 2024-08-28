@@ -187,12 +187,17 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
     private void onNextButtonClicked() {
         if (gameLogic.getScoringPlayer() != null) {
-            scorePoint(gameLogic.getScoringPlayer() , gameLogic.collectedCards());
+            String message = gameLogic.getScoringPlayer().getName() + " has collected 4 cards same rank and get 1 score";
+            statusText.setText(message);
+            String collectedRank = gameLogic.collectedRanks().get(0);
+            scorePoint(gameLogic.getScoringPlayer() , gameLogic.getScoringPlayer().removeSet(collectedRank));
             onScoreUpdate(gameLogic.getHumanScore(), gameLogic.getBotScores());
-            if (gameLogic.getScoringPlayer() == gameLogic.getCharliePlayer()) {
-                enableButtons(); // only enable buttons if this is Charlie scoring animation
+            if (gameLogic.currentPlayer.isHuman() ) {
+                enableButtons();
+                // only enable buttons if this is Charlie scoring animation
             }
             gameLogic.setScoringPlayer(null);
+
             return;
         }
 
@@ -319,7 +324,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     public void updateBotHandView(Player bot) {
         ViewGroup tempHandView = handViews.get(bot);
         Card.RankComparator comparator = new Card().new RankComparator();
-        Collections.sort(bot.getHand(), comparator);
+        if ( bot.getHand().size() > 0 ) {
+            Collections.sort(bot.getHand(), comparator);
+        }
 
         tempHandView.removeAllViews();
 
@@ -335,18 +342,21 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //                    cardViewMap.remove(card);
             newCardView.setTag(card);
             cardViewMap.put(card, newCardView);
-            newCardView.setImageResource(R.drawable.card_back);  // This is a custom method, see below
-            // Set the layout params (size, margins, etc.)
+            newCardView.setImageResource(R.drawable.card_back);
+//            newCardView.setImageResource(getCardDrawable(card));
+            LinearLayout.LayoutParams params = null;
             if ( bot == gameLogic.getAlicePlayer() || bot == gameLogic.getCharliePlayer() ) {
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardHeight , cardWidth );
-                params.setMargins(0, -cardWidth * 3 / 4 , 0, 0);
-                newCardView.setLayoutParams(params);
+                params = new LinearLayout.LayoutParams(cardHeight , cardWidth );
+                params.setMargins(0, -cardWidth * 5 / 8 , 0, 0);
                 newCardView.setRotation(90);
             } else {
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth ,cardHeight  );
+                params = new LinearLayout.LayoutParams(cardWidth ,cardHeight  );
                 params.setMargins(- cardWidth / 2, 0  , 0, 0);
-                newCardView.setLayoutParams(params);
             }
+            if ( i==0 ) {
+                params.setMargins(0, 0  , 0, 0);
+            }
+            newCardView.setLayoutParams(params);
 
             tempHandView.addView(newCardView);
             newCardView.setX(0);
@@ -620,6 +630,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 animatedCardView.setX(location[0]);
                 animatedCardView.setY(location[1]);
 
+                sourceHand.removeView(cardView);
                 rootView.addView(animatedCardView);
                 animatedCardViewList.add(animatedCardView);
 
@@ -662,11 +673,12 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
+
             public void onAnimationEnd(Animator animation) {
                 // Remove the card views from the source hand and add them to the target hand
                 for (ImageView cardView : cardViews) {
                     if (cardView != null) {
-                        sourceHand.removeView((cardView));
+//                        sourceHand.removeView(cardView);
 
 //                        rootView.removeView(cardView);
 //                        sourceHand.removeView((cardView));
@@ -793,16 +805,16 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             // Calculate the final position of the card in the player's hand
             if (scoringPlayer == gameLogic.getAlicePlayer()) {
                 sourceX = 30;  // instead of 0, should be 40 or 50
-                sourceY = screenHeightPx / 2 - 2 * cardWidth + i * cardWidth;  // middle point
+                sourceY = screenHeightPx / 2 -  cardWidth + i * cardWidth;  // middle point
             } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
                 sourceX = screenWidthPx - cardHeight;  // screenWidthPx is in pixel while 200 is in dp. Plus. width and height of card
-                sourceY = screenHeightPx / 2 - 2 * cardWidth + i * cardWidth;
+                sourceY = screenHeightPx / 2 -  cardWidth + i * cardWidth;
             } else if (scoringPlayer == gameLogic.getBobPlayer()) {
-                sourceX = screenWidthPx / 2 - 2 * cardWidth + i * cardWidth;
+                sourceX = screenWidthPx / 2 -  cardWidth + i * cardWidth;
                 sourceY = 5;
             } else {
 //            destinationX = screenWidthPx / 2 - 300 +  handCardIndex * (cardWidth * 3 / 4);  // Adjust for overlap
-                sourceX = screenWidthPx / 2 - 2 * cardWidth + i * cardWidth;
+                sourceX = screenWidthPx / 2 -  cardWidth + i * cardWidth;
                 sourceY = screenHeightPx - 2 * cardHeight;
             }
             animatedCardView.setX(sourceX);
@@ -853,6 +865,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                     scoringHand.removeView(tempCardView);
                 }
             }
+            // NO NEED TO UPDATE HAND VIEW ????
         });
 
 //        new Handler().postDelayed(new Runnable() {
@@ -867,13 +880,13 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                               int numberOfCards, boolean score) {
         String message = askingPlayer.getName() + " asked " + target.getName() + " about rank " + rankAsked + ". ";
         if (requestSuccess == false) {
-            message += "\n" + target.getName() + " does not have " + rankAsked + ". " + askingPlayer.getName() + "draws a card & turn is over";
+            message += "\n" + target.getName() + " does not have " + rankAsked + ". " + askingPlayer.getName() + " draws a card. Turn is over";
         } else {
             message += "\n" + target.getName() + " has " + numberOfCards + " rank " + rankAsked +  ". " + askingPlayer.getName() + " continues turn.";
         }
-        if (score == true) {
-            message += "\n" + askingPlayer.getName() + " has 4 cards same rank and get 1 score";
-        }
+//        if (score == true) {
+//            message += "\n" + askingPlayer.getName() + " has 4 cards same rank and get 1 score";
+//        }
         statusText.setText(message);
     }
 

@@ -21,7 +21,7 @@ public class GameLogic {
     private boolean startNextRound = false;
     protected int cardIndex = 0;  //  this is for delay for initial animation
     private Player scoringPlayer = null;
-    private ArrayList<Card> collectedCards;
+    private List<String> collectedRanks = new ArrayList<String>();
 
     private GameListener gameListener;  // Interface to notify UI about game events
 
@@ -228,7 +228,8 @@ public class GameLogic {
     // Check for collected sets of 4 cards of the same rank
     private boolean checkForCollectedSets(Player player) {
         boolean score = false;
-        List<String> collectedRanks  = collectedRanks = player.checkForSets();
+        collectedRanks.clear();
+        collectedRanks = player.checkForSets();
         for (String rank : collectedRanks) {
             if (player.isHuman()) {
                 humanScore++;
@@ -236,17 +237,18 @@ public class GameLogic {
                 int botIndex = botPlayers.indexOf(player);
                 botScores[botIndex]++;
             }
-            collectedCards = player.removeSet(rank);
+//            collectedCards = player.removeSet(rank);  //  THIS ALREADY REMOVE A SET OF 4 CARDS.
+            // THUS, HAND VIEW WILL BE UPDATED ACCORDINGLY
             totalRoundPoint++;
 
             // move this to another function in next button
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    gameListener.scorePoint(player, collectedCards);
-                    gameListener.onScoreUpdate(humanScore, botScores);
-                }
-            }, 2500);
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    gameListener.scorePoint(player, collectedCards);
+//                    gameListener.onScoreUpdate(humanScore, botScores);
+//                }
+//            }, 2500);
             score = true;
             this.scoringPlayer = player;
             // need to setText status
@@ -365,8 +367,8 @@ public class GameLogic {
         this.scoringPlayer = scoringPlayer;
     }
 
-    public ArrayList<Card> collectedCards() {
-        return this.collectedCards;
+    public List<String> collectedRanks() {
+        return this.collectedRanks;
     }
 
     public int getHumanScore() {
