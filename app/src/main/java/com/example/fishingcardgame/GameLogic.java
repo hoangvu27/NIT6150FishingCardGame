@@ -20,6 +20,8 @@ public class GameLogic {
     protected Player currentPlayer = null;
     private boolean startNextRound = false;
     protected int cardIndex = 0;  //  this is for delay for initial animation
+    private Player scoringPlayer = null;
+    private ArrayList<Card> collectedCards;
 
     private GameListener gameListener;  // Interface to notify UI about game events
 
@@ -152,6 +154,7 @@ public class GameLogic {
 
     // Handle the human's turn through UI input
     public void humanTurn(Player target, String rankAsked) {
+        // There will be no updateHandView either for human turn or for bot turn
         boolean requestSuccess;
         boolean score = false;
         int numberCardReceived = 0;
@@ -225,7 +228,7 @@ public class GameLogic {
     // Check for collected sets of 4 cards of the same rank
     private boolean checkForCollectedSets(Player player) {
         boolean score = false;
-        List<String> collectedRanks = player.checkForSets();
+        List<String> collectedRanks  = collectedRanks = player.checkForSets();
         for (String rank : collectedRanks) {
             if (player.isHuman()) {
                 humanScore++;
@@ -233,9 +236,10 @@ public class GameLogic {
                 int botIndex = botPlayers.indexOf(player);
                 botScores[botIndex]++;
             }
-            ArrayList<Card> collectedCards = player.removeSet(rank);
+            collectedCards = player.removeSet(rank);
             totalRoundPoint++;
 
+            // move this to another function in next button
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -244,6 +248,9 @@ public class GameLogic {
                 }
             }, 2500);
             score = true;
+            this.scoringPlayer = player;
+            // need to setText status
+            gameListener.disableButtons();
         }
         if (player == humanPlayer) {
             gameListener.updateSpinner();
@@ -348,5 +355,25 @@ public class GameLogic {
         } else {
             this.currentPlayer =  turnOrder.get(temp + 1);
         }
+    }
+
+    public Player getScoringPlayer() {
+        return scoringPlayer;
+    }
+
+    public void setScoringPlayer(Player scoringPlayer) {
+        this.scoringPlayer = scoringPlayer;
+    }
+
+    public ArrayList<Card> collectedCards() {
+        return this.collectedCards;
+    }
+
+    public int getHumanScore() {
+        return humanScore;
+    }
+
+    public int[] getBotScores() {
+        return botScores;
     }
 }
