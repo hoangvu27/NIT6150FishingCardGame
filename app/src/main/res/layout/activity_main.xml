@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="0dp"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:orientation="horizontal">
 <!--        android:layout_centerHorizontal="true"-->
 
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:elevation="5dp"/>
 
     <!-- Bob's Cards (Top) -->
@@ -124,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:elevation="5dp"/>
     </LinearLayout>
 
@@ -166,7 +166,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
             android:elevation="5dp"/>
     </LinearLayout>
 
@@ -179,20 +179,13 @@
         android:layout_above="@+id/playerHand"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
-<!--        <Spinner-->
-<!--            android:id="@+id/rankSpinner"-->
-<!--            android:layout_width="60dp"-->
-<!--            android:layout_height="40dp"-->
-<!--            android:layout_centerHorizontal="true"-->
-<!--            android:background="@drawable/spinner_background"-->
-<!--            />-->
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/spinner_background"
-            android:padding="2dp">
+            android:background="@drawable/spinner_background">
 
             <Spinner
                 android:id="@+id/rankSpinner"
@@ -204,8 +197,7 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/spinner_background"
-            android:padding="2dp">
+            android:background="@drawable/spinner_background">
 
             <Spinner
                 android:id="@+id/botSpinner"
@@ -228,7 +220,8 @@
             android:id="@+id/refreshHandButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/organize_card" />
+            android:src="@drawable/organize_card"
+            android:clickable="true"/>
 
         <LinearLayout
             android:layout_width="match_parent"

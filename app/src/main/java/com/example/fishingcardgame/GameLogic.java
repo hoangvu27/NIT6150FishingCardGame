@@ -161,6 +161,7 @@ public class GameLogic {
             requestSuccess = true;
             numberCardReceived = cardsReceived.size();
             gameListener.transferCardAnimation(target , humanPlayer, cardsReceived);
+
         } else {
             Card temp = deck.drawCard();
             humanPlayer.addCard(temp);
