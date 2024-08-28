@@ -805,10 +805,13 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             // Calculate the final position of the card in the player's hand
             if (scoringPlayer == gameLogic.getAlicePlayer()) {
                 sourceX = 30;  // instead of 0, should be 40 or 50
-                sourceY = screenHeightPx / 2 -  cardWidth + i * cardWidth;  // middle point
+                sourceY = screenHeightPx / 2 -  cardWidth + i * tempCardView.getWidth() ;  // cardWidth is different from param
+//                cardWidth ;
+                // tempCardView.getLayoutParams().width
+//              tempCardView.getWidth();
             } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
-                sourceX = screenWidthPx - cardHeight;  // screenWidthPx is in pixel while 200 is in dp. Plus. width and height of card
-                sourceY = screenHeightPx / 2 -  cardWidth + i * cardWidth;
+                sourceX = screenWidthPx - cardHeight;
+                sourceY = screenHeightPx / 2 -  cardWidth + i * tempCardView.getLayoutParams().width;
             } else if (scoringPlayer == gameLogic.getBobPlayer()) {
                 sourceX = screenWidthPx / 2 -  cardWidth + i * cardWidth;
                 sourceY = 5;

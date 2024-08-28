@@ -1,5 +1,7 @@
 package com.example.fishingcardgame;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -72,15 +74,19 @@ public class Player {
         List<String> collectedRanks = new ArrayList<>();
         int[] rankCounts = new int[13];  // Index represents rank (2-10, J, Q, K, A)
 
-        for (Card card : hand) {
-            int rankIndex = rankToIndex(card.getRank());
-            rankCounts[rankIndex]++;
-        }
-
-        for (int i = 0; i < rankCounts.length; i++) {
-            if (rankCounts[i] == 4) {
-                collectedRanks.add(indexToRank(i));
+        try {
+            for (Card card : hand) {
+                int rankIndex = rankToIndex(card.getRank());
+                rankCounts[rankIndex]++;
             }
+
+            for (int i = 0; i < rankCounts.length; i++) {
+                if (rankCounts[i] == 4) {
+                    collectedRanks.add(indexToRank(i));
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Player", "Error in checkForSets: " + e.getMessage());
         }
 
         return collectedRanks;
