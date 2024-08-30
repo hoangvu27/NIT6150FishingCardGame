@@ -293,6 +293,7 @@ public class GameLogic {
         if (botScores[2] == highestScore) winners.add("Charlie");
 
         winnerMessage.append("Winner(s): ").append(String.join(", ", winners));
+        winnerMessage.append("Click quit button to restart game.");
         gameListener.onGameOver(winnerMessage.toString());
     }
 
@@ -382,7 +383,7 @@ public class GameLogic {
      * @return true if game is over
      */
     public boolean isGameOver() {
-        return totalRoundPoint == 13 && currentRound == 4;
+        return currentRound == 4 && totalRoundPoint == 13 ;
     }
 
     /**

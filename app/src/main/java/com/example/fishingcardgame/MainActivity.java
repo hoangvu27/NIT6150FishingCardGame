@@ -273,11 +273,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         }
 
         if (gameLogic.isGameOver()) {
-//         notify UI
-//            clear UI
-//            quit button to log out game  !!!
-//            ADD  QUIT  BUTTON  ON RIGHT CORNER
-            nextButton.setEnabled(false);
             gameLogic.determineWinner();
         }
         if (gameLogic.isRoundOver() && gameLogic.isStartNextRound() == false) {
