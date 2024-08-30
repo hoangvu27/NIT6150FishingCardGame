@@ -13,6 +13,8 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.media.Image;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -29,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     private int cardHeight;
     private TextView humanScoreTextView, aliceScoreTextView, bobScoreTextView, charlieScoreTextView;
 
-
     private ViewGroup deckLayout;
     private Map<Player, ViewGroup> handViews;
     private Map<Card, ImageView> cardViewMap = new HashMap<>();
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     private ArrayList<ImageView> animatedCardViewList = new ArrayList<ImageView>();
     private ImageButton gameRulesButton, settingsButton = null;
 
+    private VideoView videoView;
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -100,6 +103,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         charlieScoreTextView = findViewById(R.id.charlieScore);
 
         ImageButton settingsButton = findViewById(R.id.settingsButton);
+        gameRulesButton = findViewById(R.id.gameRulesButton);
+//        videoView = findViewById(R.id.videoView);
+
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             }
         });
 
-        gameRulesButton = findViewById(R.id.gameRulesButton);
         gameRulesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,11 +256,22 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         rankSpinner.setAdapter(adapter);
     }
 
+
+
     /**
      * Give all functions and actions for the next button
      */
     private void onNextButtonClicked() {
         if (gameLogic.getScoringPlayer() != null) {
+//            if (gameLogic.getTotalRoundPoint() == 1 && !playOnce  ) {
+//                if (videoView.getVisibility() == View.VISIBLE ) {
+//                    stopAndHideVideo(); // skip video by clicking "next" button
+//                } else {
+//                    playVideo();
+//                }
+//                return;
+//            }
+
             String message = gameLogic.getScoringPlayer().getName() + " has collected 4 cards of " + gameLogic.getScoringRank() + " and get 1 score";
             statusText.setText(message);
             String collectedRank = gameLogic.collectedRanks().get(0);
@@ -899,10 +915,36 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         } else {
             message += "\n" + target.getName() + " has " + numberOfCards + " rank " + rankAsked +  ". " + askingPlayer.getName() + " continues turn.";
         }
-//        if (score == true) {
-//            message += "\n" + askingPlayer.getName() + " has 4 cards same rank and get 1 score";
-//        }
         statusText.setText(message);
     }
+
+//    private void playVideo() {
+//        // Set the video source from raw resources
+//        String videoPath = "android.resource://" + getPackageName() + "/" + R.raw.baka;
+//        Uri uri = Uri.parse(videoPath);
+//        videoView.setVideoURI(uri);
+//
+//        // Show the VideoView and Next button
+//        videoView.setVisibility(View.VISIBLE);
+//
+//        // Start the video
+//        videoView.start();
+//
+//        // Hide the video and button when the video ends
+//        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mp) {
+//                stopAndHideVideo();
+//            }
+//        });
+//    }
+//
+//    private void stopAndHideVideo() {
+//        // Stop the video playback and release resources
+//        if (videoView.isPlaying()) {
+//            videoView.stopPlayback(); // Stops video playback and releases resources
+//        }
+//        videoView.setVisibility(View.GONE); // Hide the VideoView when not in use
+//    }
 }
 

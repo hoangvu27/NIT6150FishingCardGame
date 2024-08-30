@@ -7,6 +7,15 @@
     android:background="@android:color/holo_green_dark"
     tools:context=".MainActivity">
 
+<!--    <VideoView-->
+<!--        android:id="@+id/videoView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="200dp"-->
+<!--        android:layout_alignParentTop="true"-->
+<!--        android:visibility="gone"-->
+<!--        android:adjustViewBounds="true"-->
+<!--        android:background="@android:color/black"-->
+<!--        android:layout_marginTop="40dp"/>-->
 
     <LinearLayout
         android:id="@+id/bobCardsContainer"
