@@ -22,7 +22,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
                 android:id="@+id/bobName"
                 android:layout_width="wrap_content"
@@ -39,7 +39,8 @@
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textStyle="bold"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_marginStart="4dp"/>
         </LinearLayout>
 
         <!-- Added margin to space the cards from the score -->/>
@@ -143,21 +144,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
+                android:id="@+id/charlieScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/charlieName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Charlie"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:layout_gravity="center_horizontal" />
-            <TextView
-                android:id="@+id/charlieScore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginStart="8dp" />
+
         </LinearLayout>
 
 
@@ -258,5 +261,33 @@
 <!--        android:layout_height="wrap_content"-->
 <!--        android:text="Start Game"-->
 <!--        android:layout_gravity="center" />-->
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        >
+<!--        android:gravity="end"-->
+
+        <ImageButton
+            android:id="@+id/settingsButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:text="Exit"
+            android:src="@drawable/settings"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <!-- Game Rules Button -->
+        <ImageButton
+            android:id="@+id/gameRulesButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/game_rule"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
 </RelativeLayout>
 

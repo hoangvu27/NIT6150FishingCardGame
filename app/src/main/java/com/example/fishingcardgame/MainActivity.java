@@ -11,6 +11,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +28,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     private int screenWidthPx = 0;
     private int screenHeightPx = 0;
     private ArrayList<ImageView> animatedCardViewList = new ArrayList<ImageView>();
+    private ImageButton gameRulesButton, settingsButton = null;
 
 
     @SuppressLint("WrongViewCast")
@@ -95,10 +99,26 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         bobScoreTextView = findViewById(R.id.bobScore);
         charlieScoreTextView = findViewById(R.id.charlieScore);
 
+        ImageButton settingsButton = findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSettingsDialog();
+            }
+        });
+
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onNextButtonClicked();
+            }
+        });
+
+        gameRulesButton = findViewById(R.id.gameRulesButton);
+        gameRulesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showGameRulesDialog();
             }
         });
 
@@ -117,6 +137,67 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         botAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         botSpinner.setAdapter(botAdapter);
         gameLogic.startGame();
+    }
+
+    /**
+     * Method to display the Settings dialog
+     */
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Settings");
+        builder.setItems(new CharSequence[]{"Quit Game"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0: // Quit Game option
+                        quitGame();
+                        break;
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss(); // Close the dialog when "Cancel" is clicked
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     * Method to handle quitting the game
+     */
+    private void quitGame() {
+        Toast.makeText(this, "Quitting Game...", Toast.LENGTH_SHORT).show();
+        // Add logic to quit the game, such as finishing the activity
+        finish(); // This will close the activity and effectively quit the game
+    }
+
+    /**
+     * Method to display the Game Rules dialog
+     */
+    private void showGameRulesDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Game Rules");
+        builder.setMessage("1. Rule 1: Game has 4 rounds. Each round starts with different player. Turn order is clockwise. " +
+                "\n2. Rule 2: Each player can only ask another player about a rank that they have. " +
+                        "If asked player has the rank, asking player get all cards with the rank, and "
+                        + "continues turn. " + "If not, asking player draws a card " +
+                "\n3. Rule 3: A round only ends when no player holds any card on hands. " +
+                        "Player with most points when game ends will become a winner" +
+                "\n4. Rule 4: Turn will be skipped if deck is empty and player has no card." +
+                "\n5. Rule 5: A player score 1 point if collecting a set of 4 cards with same rank");
+        builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss(); // Close the dialog when "Close" is clicked
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**
@@ -175,16 +256,18 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
      */
     private void onNextButtonClicked() {
         if (gameLogic.getScoringPlayer() != null) {
-            String message = gameLogic.getScoringPlayer().getName() + " has collected 4 cards same rank and get 1 score";
+            String message = gameLogic.getScoringPlayer().getName() + " has collected 4 cards of " + gameLogic.getScoringRank() + " and get 1 score";
             statusText.setText(message);
             String collectedRank = gameLogic.collectedRanks().get(0);
             scorePoint(gameLogic.getScoringPlayer() , gameLogic.getScoringPlayer().removeSet(collectedRank));
             onScoreUpdate(gameLogic.getHumanScore(), gameLogic.getBotScores());
             if (gameLogic.currentPlayer.isHuman() ) {
                 enableButtons();
+                updateSpinner();
                 // only enable buttons if this is Charlie scoring animation
             }
             gameLogic.setScoringPlayer(null);
+            gameLogic.setScoringRank("");
 
             return;
         }
@@ -207,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         if (gameLogic.isStartNextRound()) {
             gameLogic.setupRound();
             gameLogic.playRound();
+            gameLogic.setStartNextRound(false);
             Log.d("tag", "this is next round");
             return;
         }
@@ -310,7 +394,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         for (int i = 0; i < bot.getHand().size(); i++) {
             Card card = bot.getHand().get(i);
             ImageView oldView = cardViewMap.get(card);
-            if (oldView.getParent() != null) {
+            // sometimes, oldView just turns to null
+            if (oldView != null && oldView.getParent() != null) {
                 ViewGroup parent = (ViewGroup) oldView.getParent();
                 parent.removeView(oldView);
             }
@@ -726,21 +811,23 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             animatedCardView.setImageResource(resId);
             animatedCardView.setLayoutParams(new LinearLayout.LayoutParams(tempCardView.getWidth(), tempCardView.getHeight()));
             if (scoringPlayer == gameLogic.getCharliePlayer() || scoringPlayer == gameLogic.getAlicePlayer()) {
-                animatedCardView.setRotation(90);
+//                animatedCardView.setRotation(90);
             }
 
             float sourceX;
             float sourceY;
             // Calculate the final position of the card in the player's hand
             if (scoringPlayer == gameLogic.getAlicePlayer()) {
-                sourceX = 30;  // instead of 0, should be 40 or 50
-                sourceY = screenHeightPx / 2 -  cardWidth + i * tempCardView.getWidth() ;  // cardWidth is different from param
+                sourceX = 30 + i * cardWidth;  // instead of 0, should be 40 or 50
+                sourceY = screenHeightPx / 2;
+//                sourceY = screenHeightPx / 2 -  cardWidth + i * tempCardView.getLayoutParams().width ;  // cardWidth is different from param
 //                cardWidth ;
                 // tempCardView.getLayoutParams().width
 //              tempCardView.getWidth();
             } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
-                sourceX = screenWidthPx - cardHeight;
-                sourceY = screenHeightPx / 2 -  cardWidth + i * tempCardView.getLayoutParams().width;
+                sourceX = screenWidthPx - cardHeight - i * cardWidth;
+                sourceY = screenHeightPx / 2;
+//                sourceY = screenHeightPx / 2 -  cardWidth + i * tempCardView.getLayoutParams().width;
             } else if (scoringPlayer == gameLogic.getBobPlayer()) {
                 sourceX = screenWidthPx / 2 -  cardWidth + i * cardWidth;
                 sourceY = 5;
@@ -768,10 +855,10 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 moveX = ObjectAnimator.ofFloat(animatedCardView, "x", sourceX);
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", deckPosition[1]);
             } else if (scoringPlayer == gameLogic.getAlicePlayer()) {
-                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0]);
+                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0] + i * cardWidth);
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", sourceY);
             } else if (scoringPlayer == gameLogic.getCharliePlayer()) {
-                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0]);
+                moveX = ObjectAnimator.ofFloat(animatedCardView, "x", deckPosition[0] - i * cardWidth);
                 moveY = ObjectAnimator.ofFloat(animatedCardView, "y", sourceY);
             }
             if (moveX != null && moveY != null) {
@@ -797,7 +884,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                     scoringHand.removeView(tempCardView);
                 }
             }
-            // NO NEED TO UPDATE HAND VIEW ????
         });
     }
 

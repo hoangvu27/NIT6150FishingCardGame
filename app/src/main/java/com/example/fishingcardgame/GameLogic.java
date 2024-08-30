@@ -27,6 +27,7 @@ public class GameLogic {
     private boolean startNextRound = false;
     protected int cardIndex = 0;  //  this is for delay for initial animation
     private Player scoringPlayer = null;
+    private String scoringRank = "";
     private List<String> collectedRanks = new ArrayList<String>();
 
     private GameListener gameListener;  // Interface to notify UI about game events
@@ -245,6 +246,7 @@ public class GameLogic {
         collectedRanks.clear();
         collectedRanks = player.checkForSets();
         for (String rank : collectedRanks) {
+            scoringRank = rank;
             if (player.isHuman()) {
                 humanScore++;
             } else {
@@ -372,7 +374,7 @@ public class GameLogic {
      * @return true if round is over
      */
     public boolean isRoundOver() {
-        return totalRoundPoint == 13 && turnOrder.get(0) != getCharliePlayer();
+        return totalRoundPoint == 13 && currentRound < 4;
     }
 
     /**
@@ -380,7 +382,7 @@ public class GameLogic {
      * @return true if game is over
      */
     public boolean isGameOver() {
-        return totalRoundPoint == 13 && turnOrder.get(0) == getCharliePlayer();
+        return totalRoundPoint == 13 && currentRound == 4;
     }
 
     /**
@@ -427,5 +429,13 @@ public class GameLogic {
 
     public int[] getBotScores() {
         return botScores;
+    }
+
+    public void setScoringRank(String scoringRank) {
+        this.scoringRank = scoringRank;
+    }
+
+    public String getScoringRank() {
+        return scoringRank;
     }
 }
