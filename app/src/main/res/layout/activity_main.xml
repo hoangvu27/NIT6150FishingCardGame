@@ -216,12 +216,6 @@
             android:layout_alignParentBottom="true"
             android:text="Next" />
 
-        <ImageButton
-            android:id="@+id/refreshHandButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/organize_card"
-            android:clickable="true"/>
 
         <LinearLayout
             android:layout_width="match_parent"

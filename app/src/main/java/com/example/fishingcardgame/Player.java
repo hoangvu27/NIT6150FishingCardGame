@@ -8,6 +8,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * The Player class is responsible for possible actions that player  object can perform
+ */
 public class Player {
     private String name;
     private List<Card> hand;
@@ -19,14 +22,26 @@ public class Player {
         this.score = 0;
     }
 
+    /**
+     * Get name of player
+     * @return name of player
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Get all cards of player
+     * @return all cards of player
+     */
     public List<Card> getHand() {
         return hand;
     }
 
+    /**
+     * Add new card to player hand
+     * @param card the card that will be added
+     */
     public void addCard(Card card) {
         hand.add(card);
     }
@@ -49,6 +64,11 @@ public class Player {
         return ranks;
     }
 
+    /**
+     * Check if a player has a rank
+     * @param rank the rank that will be used to check
+     * @return true if a player has the rank
+     */
     public boolean hasRank(String rank) {
         for (Card card : hand) {
             if (card.getRank().equals(rank)) {
@@ -58,6 +78,11 @@ public class Player {
         return false;
     }
 
+    /**
+     * Remove all cards with a rank from a player hand
+     * @param rank the rank that is in request
+     * @return all cards that have the rank
+     */
     public List<Card> giveCards(String rank) {
         List<Card> cardsToGive = new ArrayList<>();
         hand.removeIf(card -> {
@@ -92,7 +117,11 @@ public class Player {
         return collectedRanks;
     }
 
-    // Helper method to remove a collected set from the player's hand
+    /**
+     * Helper method to remove a collected set from the player's hand
+     * @param rank that will be removed
+     * @return a set of 4 cards of the same rank
+     */
     public ArrayList<Card> removeSet(String rank) {
         ArrayList<Card> cardsRemoved = new ArrayList<>();
         Iterator<Card> iterator = hand.iterator();  // Use an iterator for safe removal
@@ -148,10 +177,17 @@ public class Player {
         }
     }
 
+    /**
+     * Clear all hand of player
+     */
     public void clearHand() {
         hand.clear();
     }
 
+    /**
+     * Check if player is human
+     * @return true if player is human
+     */
     public boolean isHuman() {
         return name.equals("Human");
     }

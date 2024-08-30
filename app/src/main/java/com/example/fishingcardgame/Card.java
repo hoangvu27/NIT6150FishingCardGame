@@ -42,6 +42,10 @@ public class Card  {
         return rank;
     }
 
+    /**
+     * Get the source name of image for the card
+     * @return the name of image source for the card
+     */
     public String getImageName() {
         return "card_" + this.getRank().toLowerCase() + "_of_" + this.getSuit().toLowerCase();
     }
@@ -51,6 +55,10 @@ public class Card  {
         return rank + " of " + suit;
     }
 
+    /**
+     * Get the card
+     * @return the card
+     */
     public Card getCard() {
         return this;
     }

@@ -1,3 +1,9 @@
+/**
+ * MainActivity handles the main user interface and interactions for the game.
+ * It includes animations, event listeners, and manages the overall gameplay
+ * experience.
+ */
+
 package com.example.fishingcardgame;
 
 import android.animation.Animator;
@@ -31,39 +37,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * MainActivity sets up the game UI, handles user interactions, and manages
+ * animations. It extends AppCompatActivity and implements required listeners.
+ */
 public class MainActivity extends AppCompatActivity implements GameLogic.GameListener {
 
+    // Constants and fields with appropriate naming conventions
+    private static final int ANIMATION_DURATION = 500;
+
     private GameLogic gameLogic;
-    //    private LinearLayout playerHandView;
-//    private LinearLayout aliceCardsView;
-//    private LinearLayout bobCardsView;
-//    private LinearLayout charlieCardsView;
     private ViewGroup playerHandView, aliceCardsView, bobCardsView, charlieCardsView;
     private Spinner rankSpinner;
     private Spinner botSpinner;
     private Button nextButton;
-    private ImageButton refreshHandButton;
     private TextView statusText;
     private int cardWidth;
     private int cardHeight;
     private TextView humanScoreTextView, aliceScoreTextView, bobScoreTextView, charlieScoreTextView;
-    private boolean isHumanTurn = false;
-    private Player currentPlayer;
 
-    // Fields to track the bot's action
-    private Player askingBot;
-    private Player targetBot;
-    private String requestedRank;
-    private boolean waitingForBotActionResult = false;
+
     private ViewGroup deckLayout;
     private Map<Player, ViewGroup> handViews;
     private Map<Card, ImageView> cardViewMap = new HashMap<>();
     private int screenWidthPx = 0;
     private int screenHeightPx = 0;
     private ArrayList<ImageView> animatedCardViewList = new ArrayList<ImageView>();
-
-    Boolean refreshCard = false;
-//    private int cardIndex;
 
 
     @SuppressLint("WrongViewCast")
@@ -90,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         rankSpinner = findViewById(R.id.rankSpinner);
         botSpinner = findViewById(R.id.botSpinner);
         nextButton = findViewById(R.id.nextButton);
-        refreshHandButton = findViewById(R.id.refreshHandButton);
         statusText = findViewById(R.id.bot_actions_text_view);
         humanScoreTextView = findViewById(R.id.human_score_text_view);
         aliceScoreTextView = findViewById(R.id.alice_score_text_view);
@@ -100,14 +98,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 onNextButtonClicked();
-            }
-        });
-        refreshHandButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onRefreshButtonClicked();
             }
         });
 
@@ -126,18 +117,26 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         botAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         botSpinner.setAdapter(botAdapter);
         gameLogic.startGame();
-
     }
 
+    /**
+     * Hide deck view when deck is empty
+     */
     @Override
     public void onDeckEmpty() {
         deckLayout.setVisibility(View.GONE);  // Hide the deck when no cards are left
     }
 
+    /**
+     * Refill deck after a round is over
+     */
     public void refillDeck() {
         deckLayout.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * A part of setting up a new round
+     */
     public void playRound() {
         View rootView = findViewById(android.R.id.content);
 
@@ -153,38 +152,27 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                         nextButton.setEnabled(true);
                         botSpinner.setEnabled(true);
                         rankSpinner.setEnabled(true);
-                        refreshHandButton.setEnabled(false);
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, gameLogic.getHumanPlayer().getValidRanks());
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         rankSpinner.setAdapter(adapter);
                     }
                 }, 2000);
-
-
             }
         });
     }
 
+    /**
+     * Update the rank spinner button
+     */
     public void updateSpinner() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, gameLogic.getHumanPlayer().getValidRanks());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         rankSpinner.setAdapter(adapter);
     }
 
-    private void onRefreshButtonClicked() {
-        ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
-        for (ImageView animatedView : animatedCardViewList) {
-            rootView.removeView(animatedView);
-        }
-        playerHandView.setVisibility(View.VISIBLE);
-//        updateHumanHandView();
-        updateBotHandView(gameLogic.getBobPlayer());
-        updateBotHandView(gameLogic.getAlicePlayer());
-        updateBotHandView(gameLogic.getCharliePlayer());
-        nextButton.setEnabled(true);
-        refreshHandButton.setEnabled(false);
-    }
-
+    /**
+     * Give all functions and actions for the next button
+     */
     private void onNextButtonClicked() {
         if (gameLogic.getScoringPlayer() != null) {
             String message = gameLogic.getScoringPlayer().getName() + " has collected 4 cards same rank and get 1 score";
@@ -273,6 +261,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         Log.d("card", "Charlie " + charlieCard);
     }
 
+    /**
+     * Update and refresh hand view for human players
+     */
     public void updateHumanHandView() {
         // this method also sort humanHand
         Card.RankComparator comparator = new Card().new RankComparator();
@@ -301,33 +292,19 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             newCardView.setX(0);
             newCardView.setY(0);
 
-
-//                    // Set the appropriate drawable based on the card's rank and suit
-//                    cardView.setImageResource(getCardDrawable(card));  // This is a custom method, see below
-//                    // Set the layout params (size, margins, etc.)
-//                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
-////            params.setMargins(-cardWidth *3 / 4, 0, 0, 0); // Overlap cards slightly, adjust as needed
-//                    // set (0,0,0,0) ???
-////            params.gravity = Gravity.CENTER_HORIZONTAL;
-//                    cardView.setLayoutParams(params);
-
-//                    humanHandView.addView(cardView);
-//                    cardView.setX(50 + i * cardWidth / 2);
-//                    cardView.setY(0);
-            //  THERE  MIGHT BE DELAY SO THAT CARD APPEAR AFTER TRANSFER ANIMATION
-        }
-
-
+       }
     }
 
-
+    /**
+     * Update hand view for a bot
+     * @param bot the bot that will get UI update and refresh
+     */
     public void updateBotHandView(Player bot) {
         ViewGroup tempHandView = handViews.get(bot);
         Card.RankComparator comparator = new Card().new RankComparator();
         if ( bot.getHand().size() > 0 ) {
             Collections.sort(bot.getHand(), comparator);
         }
-
         tempHandView.removeAllViews();
 
         for (int i = 0; i < bot.getHand().size(); i++) {
@@ -362,29 +339,13 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             newCardView.setX(0);
             newCardView.setY(0);
         }
-
-//        for (Card card : bot.getHand()) {
-//            ImageView cardView = cardViewMap.get(card);
-//            cardView.setImageResource(R.drawable.card_back);
-//
-//            if (bot == gameLogic.getBobPlayer()) {
-//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, cardHeight);
-//                params.setMargins(-cardWidth * 3 / 4, 0, 0, 0); // Overlap cards slightly, adjust as needed
-//                // set (0,0,0,0) ???
-//                cardView.setLayoutParams(params);
-//            } else {
-//                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardHeight, cardWidth);
-//                params.setMargins(0, -cardWidth * 3 / 4, 0, 0); // Overlap cards slightly, adjust as needed
-//                // set (0,0,0,0) ???
-//                cardView.setLayoutParams(params);
-//                cardView.setRotation(90);
-//            }
-//
-//            // Add the card view to the human hand view
-//            tempHandView.addView(cardView);
-//        }
     }
 
+    /**
+     * A helper method to get image for the card
+     * @param card the card that will display an image
+     * @return return image for the card
+     */
     private int getCardDrawable(Card card) {
         // Convert the card object (rank and suit) to the appropriate drawable resource
         String cardName = "card_" + card.getRank().toLowerCase() + "_of_" + card.getSuit().toLowerCase();
@@ -394,6 +355,10 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     }
 
 
+    /**
+     * Get bot for spinner so that human can ask
+     * @return all bots to ask
+     */
     private Player getSelectedBot() {
         String selectedBotName = botSpinner.getSelectedItem().toString();
 
@@ -409,11 +374,19 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         }
     }
 
+    /**
+     * Get ranks for spinner button
+     * @return all available rank in the spinner so that human player can select to ask
+     */
     private String getSelectedRank() {
         return rankSpinner.getSelectedItem().toString();
     }
 
-
+    /**
+     * Update the score board
+     * @param humanScore human score
+     * @param botScores scores of each bot
+     */
     @Override
     public void onScoreUpdate(int humanScore, int[] botScores) {
         // Update the scores for human and each bot
@@ -424,40 +397,42 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     }
 
     @Override
-    public void onBotAsk(Player bot, Player target, String rankAsked) {
-        // Display the bot's action in the bot actions text view
-        String actionText = bot.getName() + " asks " + target.getName() + " for rank " + rankAsked + ".";
-        statusText.setText(actionText);
-    }
-
-    @Override
     public void onGameOver(String winnerMessage) {
         // Display the winner message and disable the next button
         statusText.setText(winnerMessage);
         nextButton.setEnabled(false);
     }
 
-    @Override
-    public void playerEmpty() {
-        statusText.setText("Player has no card left. Turn skipped");
-    }
-
+    /**
+     * Disable all spinner buttons
+     */
     public void disableButtons() {
         rankSpinner.setEnabled(false);
         botSpinner.setEnabled(false);
     }
 
+    /**
+     * Enable all spinner buttons
+     */
     public void enableButtons() {
         rankSpinner.setEnabled(true);
         botSpinner.setEnabled(true);
     }
 
+    /**
+     * Test animation
+     */
     @SuppressLint("ResourceType")
     @Override
     public void showCardAnimation() {
-//
+
     }
 
+    /**
+     * show animation of drawing card or distributing cards
+     * @param player the player that will receive cards
+     * @param card a card that is distributed from deck to a player
+     */
     @Override
     public void onCardDistributed(Player player, Card card) {
         ImageView cardView = new ImageView(this);
@@ -499,9 +474,17 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         gameLogic.cardIndex++;
     }
 
+    /**
+     * show animation of a card move from deck to hand
+     * @param cardView the view of a card
+     * @param handView the view of a player hand
+     * @param isHumanPlayer true if it is human player
+     * @param card the card that is being distributed to player hand
+     * @param player the player who will get the card
+     * @param rootView the root of relative view of the app
+     */
     private void animateCardToHand(final ImageView cardView, ViewGroup handView,
                                    boolean isHumanPlayer, Card card, Player player, ViewGroup rootView) {
-
 
         cardView.setX(screenWidthPx / 2); // X of deckLayout
         cardView.setY(screenHeightPx / 2);  // Y of deckLayout
@@ -530,10 +513,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
         AnimatorSet moveSet = new AnimatorSet();
         moveSet.playTogether(moveX, moveY);
-        moveSet.setDuration(1000);
+        moveSet.setDuration(2 * ANIMATION_DURATION);
         moveSet.start();
-        moveSet.setStartDelay(gameLogic.cardIndex * 500);
-
+        moveSet.setStartDelay(gameLogic.cardIndex * ANIMATION_DURATION);
 
         if (isHumanPlayer) {
             // If it's the human player, apply a flip animation when the card reaches the hand
@@ -562,7 +544,11 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 
     }
 
-    // Method to apply a flip animation to the card when it reaches the human player's hand
+    /**
+     *  Method to apply a flip animation to the card when it reaches the human player's hand
+     * @param cardView view of a flipping card
+     * @param card the card that will be flipped on human hand
+     */
     private void applyFlipAnimation(final ImageView cardView, Card card) {
         ObjectAnimator flip1 = ObjectAnimator.ofFloat(cardView, "scaleX", 1f, 0f);  // Flip to "invisible" side
         flip1.setDuration(250);  // Half of the total flip duration
@@ -582,19 +568,12 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         flip1.start();  // Start the first half of the flip
     }
 
-    public ImageView getCardViewFromHand(Card card, ViewGroup handView) {
-        for (int i = 0; i < handView.getChildCount(); i++) {
-            ImageView cardView = (ImageView) handView.getChildAt(i);
-            // Assuming cardView has a tag or a method to compare with the Card object
-            Card associatedCard = (Card) cardView.getTag();  // Assuming you set the card as a tag earlier
-            if (associatedCard != null && associatedCard.equals(card)) {
-                return cardView;
-            }
-        }
-        return null;  // If no match is found
-    }
-
-
+    /**
+     * show animation of transferring cards from one hand to another hand
+     * @param askedPlayer the player that will give cards
+     * @param askingPlayer the player who will receive cards
+     * @param cardsTrasnfered all cards that will be in transfer
+     */
     public void transferCardAnimation(Player askedPlayer, Player askingPlayer, List<Card> cardsTrasnfered) {
         ViewGroup sourceHand = handViews.get(askedPlayer);
         ViewGroup targetHand = handViews.get(askingPlayer);
@@ -634,18 +613,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 rootView.addView(animatedCardView);
                 animatedCardViewList.add(animatedCardView);
 
-//                rootView.addView(cardView);
-
-
-//                targetHand.getChildAt(targetHand.getChildCount() - 1);  // ALTHOUGH TARGET HANDS RECEIVED CARDS, TARGET VIEW NOT YET GET CARDS
-                // ASSUMING THAT targetHand.getChildAt WILL WORK
-
-                //  2 PROBLEMS WITH BELOW CODE:
-                // FIRST, SAME TARGET LOCATIONS FOR ALL CARDS  ->  this can be solved if updateBotHand(...) is used
-                // LOCATION IS TARGET HAND, NOT THE LAST CARDS OF HAND
-
-                //  ==> EASIEST SOLUTION IS TO CLONE CARDS FOR ANIMATION  & updateBotHand
-                //  updateBotHand & updateHumanHand can turn card face to up or down
                 int[] targetPosition = new int[2];
                 targetHand.getLocationOnScreen(targetPosition);
 
@@ -668,7 +635,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             }
         }
         animatorSet.playTogether(animations);
-        animatorSet.setDuration(1000);  // 1-second animation duration for all cards
+        animatorSet.setDuration(2 * ANIMATION_DURATION);  // 1-second animation duration for all cards
         animatorSet.start();
 
         animatorSet.addListener(new AnimatorListenerAdapter() {
@@ -688,17 +655,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //                        cardView.setX(0);
 //                        cardView.setY(0);
 //                        int spaceIndex = targetHand.getChildCount();
-//                        if ( askingPlayer == gameLogic.getBobPlayer() || askingPlayer.isHuman() ) {
-//                            cardView.setX(spaceIndex * cardWidth * 3 /4 );
-//                        } else {
-//                            cardView.setX(0);
-//                        }
-//                        if ( askingPlayer == gameLogic.getBobPlayer() || askingPlayer.isHuman() ) {
-//                            cardView.setY(0); // is this necessary ???
-//                        } else {
-//                            cardView.setY(spaceIndex * cardWidth * 3 /4 ); // is this necessary ???
-//                        }
-
                     }
                 }
                 for (int i = 0; i < animatedCardViewList.size(); i++) {
@@ -735,35 +691,14 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             }
 
         });
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (askingPlayer.isHuman()) {
-//                    updateHumanHandView();
-//                    updateBotHandView(askedPlayer);
-//                } else if (askedPlayer.isHuman()) {
-//                    updateHumanHandView();
-//                    updateBotHandView(askingPlayer);
-//                } else {
-//                    updateBotHandView(askedPlayer);
-//                    updateBotHandView(askingPlayer);
-//                }
-//            }
-//        }, 2000);
-
-
-        //  EACH CARD WILL BE TRANSFERED SEPARATELY, NOT AT THE SAME TIME
-        //  IF HUMAN GIVE CARD, THEN FLIP CARD
-        // IF HUMAN RECEIVE CARD, THEN FLIP CARD
-
-        // NOT SURE HOW ANIMATION ENDS
-        // -> 2 WAYS: CLONE CARDS FOR ANIMATION & UPDATE HANDS ,
-        // OR MOVE CARDS FROM A HAND TO ANOTHER HAND
-
-        // Clone the card view to create a movable image for the animation
 
     }
 
+    /**
+     * show animation when a player collects a set of 4 cars with same rank. It also updates score board
+     * @param scoringPlayer the player who get 1 point
+     * @param collectedCards a set of cards with same rank
+     */
     public void scorePoint(Player scoringPlayer, ArrayList<Card> collectedCards) {
         ViewGroup scoringHand = handViews.get(scoringPlayer);
 //        int[] deckPosition = new int[2];
@@ -793,12 +728,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             if (scoringPlayer == gameLogic.getCharliePlayer() || scoringPlayer == gameLogic.getAlicePlayer()) {
                 animatedCardView.setRotation(90);
             }
-
-//            int[] cardPosition = new int[2];
-//            tempCardView.getLocationOnScreen(cardPosition);
-//            animatedCardView.setX(cardPosition[0]);
-//            animatedCardView.setY(cardPosition[1]);
-//            Log.d("set" , "position of collected card " + " X " + cardPosition[0] + " "  + " Y " + cardPosition[1]);
 
             float sourceX;
             float sourceY;
@@ -851,7 +780,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             }
         }
         animatorSet.playTogether(animations);
-        animatorSet.setDuration(1000);  // Set the duration for all animations
+        animatorSet.setDuration(4 * ANIMATION_DURATION);  // Set the duration for all animations
         animatorSet.start();
 //        for (ImageView tempCardView : cardViews ) {
 //            scoringHand.removeView(tempCardView);
@@ -870,15 +799,17 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
             }
             // NO NEED TO UPDATE HAND VIEW ????
         });
-
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        }, 1000);  // 1 second delay, adjust as needed
     }
 
+    /**
+     * Give a status in text to tell human player what actions taken and results of each turn of human and bot
+     * @param askingPlayer the player who is asking
+     * @param requestSuccess true if a player successfully take cards from another player. Otherwise, false
+     * @param rankAsked the player is being asked
+     * @param target the card rank that a player is aksing
+     * @param numberOfCards number of cards are given from one player to another player
+     * @param score true if a set has been collected. Otherwise return false
+     */
     public void requestResult(Player askingPlayer, boolean requestSuccess, String rankAsked, Player target,
                               int numberOfCards, boolean score) {
         String message = askingPlayer.getName() + " asked " + target.getName() + " about rank " + rankAsked + ". ";
@@ -891,12 +822,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
 //            message += "\n" + askingPlayer.getName() + " has 4 cards same rank and get 1 score";
 //        }
         statusText.setText(message);
-    }
-
-    @Override
-    public void onTurnEnd() {
-        // Clear the bot actions text view to indicate the end of the turn
-        statusText.setText("");
     }
 }
 

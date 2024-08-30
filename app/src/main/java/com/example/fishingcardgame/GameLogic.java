@@ -1,3 +1,4 @@
+
 package com.example.fishingcardgame;
 
 import android.os.Handler;
@@ -6,6 +7,11 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The GameLogic class is responsible for handling the game flow, including managing
+ * players, scoring, and turns. It interfaces with the Deck and Player classes to
+ * control the state and progression of the game.
+ */
 public class GameLogic {
     private Deck deck;
     private Player humanPlayer;
@@ -25,6 +31,9 @@ public class GameLogic {
 
     private GameListener gameListener;  // Interface to notify UI about game events
 
+    /**
+     * Initializes the GameLogic with the necessary components.
+     */
     public GameLogic(GameListener listener) {
         this.gameListener = listener;
 //        deck = new Deck();
@@ -38,12 +47,8 @@ public class GameLogic {
 
     // Interface to communicate with the Android UI
     public interface GameListener {
-        void onTurnEnd();
         void onScoreUpdate(int humanScore, int[] botScores);
-        void onBotAsk(Player bot, Player target, String rankAsked);
         void onGameOver(String winnerMessage);
-
-        void playerEmpty();
 
         void onCardDistributed(Player player, Card card);
 
@@ -74,7 +79,9 @@ public class GameLogic {
         void refillDeck();
     }
 
-    // Simulates starting the game
+    /**
+     * start the game
+     */
     public void startGame() {
         setupRound();
 //        testAnimation();
@@ -87,7 +94,9 @@ public class GameLogic {
         gameListener.showCardAnimation();
     }
 
-    // Setup the round by shuffling the deck and distributing cards
+    /**
+     *  Setup the round by shuffling the deck and distributing cards
+     */
     void setupRound() {
         deck = new Deck();
         gameListener.refillDeck();
@@ -109,15 +118,11 @@ public class GameLogic {
             Log.d("card", "Charlie card: " + card.getRank() + " _ " + card.getSuit() );
         }
 
-//        testAnimation();
     }
 
-
-//    private void testAnimation() {
-//        gameListener.showCardAnimation();
-//    }
-
-    // Distribute 5 cards to each player
+    /**
+     * Initially distribute 5 cards to each player
+     */
     private void distributeInitialCards() {
         this.cardIndex = 0;
         for (int j=0; j < turnOrder.size(); j++ ) {
@@ -134,7 +139,9 @@ public class GameLogic {
 
     }
 
-    // Determine the turn order for the current round
+    /**
+     * Determine the turn order for the current round
+     */
     private void determineTurnOrder() {
         if (currentRound == 1) {
             turnOrder = List.of(humanPlayer, botPlayers.get(0), botPlayers.get(1), botPlayers.get(2));
@@ -147,11 +154,18 @@ public class GameLogic {
         }
     }
 
+    /**
+     * Notify UI that a new round is played. It is a part of process of setting up a new round
+     */
     void playRound() {
         gameListener.playRound();
     }
 
-
+    /**
+     * Play human turn
+     * @param target the player is asked by human
+     * @param rankAsked the rank that human player asks
+     */
     // Handle the human's turn through UI input
     public void humanTurn(Player target, String rankAsked) {
         // There will be no updateHandView either for human turn or for bot turn
@@ -166,14 +180,15 @@ public class GameLogic {
             gameListener.transferCardAnimation(target , humanPlayer, cardsReceived);
 
         } else {
-            Card temp = deck.drawCard();
-            humanPlayer.addCard(temp);
-            if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
+            if (!deck.isEmpty()) {
+                Card temp = deck.drawCard();
+                humanPlayer.addCard(temp);
+                if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
+                this.cardIndex = 0;
+                gameListener.onCardDistributed(humanPlayer ,temp);
+            }
 
-            this.cardIndex = 0;
-            gameListener.onCardDistributed(humanPlayer ,temp);
             requestSuccess = false;
-
             setNextPlayer(this.currentPlayer);
             gameListener.disableButtons();
         }
@@ -181,7 +196,10 @@ public class GameLogic {
         gameListener.requestResult(humanPlayer , requestSuccess, rankAsked, target, numberCardReceived, score);
     }
 
-    // Simulate a bot's turn, returns true if the turn should continue
+    /**
+     *  Simulate a bot's turn, returns true if the turn should continue
+     * @param bot the bot who is currently playing
+     */
     void botTurn(Player bot) {
         List<Player> validTargets = getValidTargets(bot);
         Player target = validTargets.get((int) (Math.random() * validTargets.size()));
@@ -198,14 +216,16 @@ public class GameLogic {
             numberCardReceived = cardsReceived.size();
             gameListener.transferCardAnimation(target , bot, cardsReceived);
         } else {
-            Card temp = deck.drawCard();
-            bot.addCard(temp);
-            if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
+            if (!deck.isEmpty()) {
+                Card temp = deck.drawCard();
+                bot.addCard(temp);
+                if (deck.isEmpty()) { gameListener.onDeckEmpty(); }
 
-            this.cardIndex = 0;
+                this.cardIndex = 0;
+                gameListener.onCardDistributed(bot ,temp);
+            }
+
             requestSuccess = false;
-            gameListener.onCardDistributed(bot ,temp);
-
             if (currentPlayer == getCharliePlayer()) {
                 gameListener.enableButtons();
             }
@@ -215,17 +235,11 @@ public class GameLogic {
         gameListener.requestResult(bot , requestSuccess, rankAsked, target, numberCardReceived, score);
     }
 
-    // Check if the round is over
-//    private boolean isRoundOver() {
-//        for (Player player : getAllPlayers()) {
-//            if (!player.getHand().isEmpty()) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-
-    // Check for collected sets of 4 cards of the same rank
+    /**
+     * Check for collected sets of 4 cards of the same rank
+     * @param player the player who might have collected a set of 4 cards
+     * @return true if a set of 4 cards of same rank has been collected
+     */
     private boolean checkForCollectedSets(Player player) {
         boolean score = false;
         collectedRanks.clear();
@@ -241,14 +255,6 @@ public class GameLogic {
             // THUS, HAND VIEW WILL BE UPDATED ACCORDINGLY
             totalRoundPoint++;
 
-            // move this to another function in next button
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    gameListener.scorePoint(player, collectedCards);
-//                    gameListener.onScoreUpdate(humanScore, botScores);
-//                }
-//            }, 2500);
             score = true;
             this.scoringPlayer = player;
             // need to setText status
@@ -266,7 +272,9 @@ public class GameLogic {
         gameListener.onScoreUpdate(humanScore, botScores);
     }
 
-    // Determine the final winner after all rounds
+    /**
+     *  Determine the final winner after all rounds
+     */
     void determineWinner() {
         StringBuilder winnerMessage = new StringBuilder("Game Over!\nFinal Scores:\n");
         winnerMessage.append("Human: ").append(humanScore).append("\n");
@@ -283,42 +291,66 @@ public class GameLogic {
         if (botScores[2] == highestScore) winners.add("Charlie");
 
         winnerMessage.append("Winner(s): ").append(String.join(", ", winners));
-
         gameListener.onGameOver(winnerMessage.toString());
     }
 
-    // Get all players (human + bots)
+    /**
+     * Get all players (human + bots)
+     * @return  all players (human + bots)
+     */
     private List<Player> getAllPlayers() {
         List<Player> allPlayers = new ArrayList<>(botPlayers);
         allPlayers.add(humanPlayer);
         return allPlayers;
     }
 
-    // Get valid targets for a bot
+    /**
+     * Get valid targets for a bot
+     * @param bot the bot that seeks valid targets to ask
+     * @return valid targets for a bot
+     */
     private List<Player> getValidTargets(Player bot) {
-        List<Player> validTargets = new ArrayList<>(botPlayers);
-        validTargets.add(humanPlayer);
-        validTargets.remove(bot);  // Bot cannot ask itself
-        for (Player tempPlayer : validTargets) {
-            if (tempPlayer.getHand().size() == 0 ) {
-                validTargets.remove(tempPlayer);  //  players with no card should not be asked
+        List<Player> validTargets = new ArrayList<>();
+        for (Player tempPlayer : botPlayers) {
+            if  (tempPlayer.getHand().size() > 0 ) {
+                validTargets.add(tempPlayer);
             }
         }
+        if (humanPlayer.getHand().size() > 0 ) {
+            validTargets.add(humanPlayer);
+        }
+        validTargets.remove(bot);  // Bot cannot ask itself
         return validTargets;
     }
 
+    /**
+     * Get all bot players
+     * @return all bot players
+     */
     List<Player> getBotPlayers() {
         return botPlayers;
     }
 
+    /**
+     * Get human player
+     * @return human player
+     */
     Player getHumanPlayer() {
         return humanPlayer;
     }
 
+    /**
+     * Get deck
+     * @return deck
+     */
     Deck getDeck() {
         return deck;
     }
 
+    /**
+     * Get Alice player
+     * @return Alice player
+     */
     public Player getAlicePlayer() {
         return botPlayers.get(0);
     }
@@ -335,17 +367,35 @@ public class GameLogic {
         return totalRoundPoint;
     }
 
+    /**
+     * Check if a round is over
+     * @return true if round is over
+     */
     public boolean isRoundOver() {
         return totalRoundPoint == 13 && turnOrder.get(0) != getCharliePlayer();
     }
+
+    /**
+     * Check if game is over
+     * @return true if game is over
+     */
     public boolean isGameOver() {
         return totalRoundPoint == 13 && turnOrder.get(0) == getCharliePlayer();
     }
 
+    /**
+     * Trigger a new round
+     * @param startNextRound true if a new round is ready to begin
+     */
     public void setStartNextRound(boolean startNextRound) {
         this.startNextRound = startNextRound;
+        currentRound++ ;
     }
 
+    /**
+     * Check if next round has begun
+     * @return true if a next round is about to begin
+     */
     public boolean isStartNextRound() {
         return startNextRound;
     }

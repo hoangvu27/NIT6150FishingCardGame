@@ -17,11 +17,12 @@ public class Deck {
                 cards.add(new Card(suit, rank));
             }
         }
-
         Collections.shuffle(cards);
     }
 
-    // Shuffle the deck
+    /**
+     * Shuffle the deck
+     */
     public void shuffle() {
         Collections.shuffle(cards);
     }
