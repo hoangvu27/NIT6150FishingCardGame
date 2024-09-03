@@ -475,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
      * @return all available rank in the spinner so that human player can select to ask
      */
     private String getSelectedRank() {
-        if (rankSpinner == null) {
+        if (rankSpinner == null || rankSpinner.getSelectedItem() == null ) {
             return null;
         }
         return rankSpinner.getSelectedItem().toString();
