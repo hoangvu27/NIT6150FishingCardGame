@@ -742,15 +742,10 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                 for (ImageView cardView : cardViews) {
                     if (cardView != null) {
 //                        sourceHand.removeView(cardView);
-
 //                        rootView.removeView(cardView);
-//                        sourceHand.removeView((cardView));
 //                        targetHand.addView(cardView);
-//                        rootView.addView(cardView);
-//                        ImageView tempView = (ImageView) targetHand.getChildAt(targetHand.getChildCount()-1);
 //                        cardView.setX(0);
 //                        cardView.setY(0);
-//                        int spaceIndex = targetHand.getChildCount();
                     }
                 }
                 for (int i = 0; i < animatedCardViewList.size(); i++) {
@@ -767,23 +762,6 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                     updateBotHandView(askedPlayer);
                     updateBotHandView(askingPlayer);
                 }
-
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (askingPlayer.isHuman()) {
-//                            updateHumanHandView();
-//                            updateBotHandView(askedPlayer);
-//                        } else if (askedPlayer.isHuman()) {
-//                            updateHumanHandView();
-//                            updateBotHandView(askingPlayer);
-//                        } else {
-//                            updateBotHandView(askedPlayer);
-//                            updateBotHandView(askingPlayer);
-//                        }
-//                    }
-//                }, 2000);
-
             }
 
         });

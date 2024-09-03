@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1068170793683",
+    "project_id": "fishgame-88915",
+    "storage_bucket": "fishgame-88915.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068170793683:android:d26066185ed48a4be53a26",
+        "android_client_info": {
+          "package_name": "com.example.fishingcardgame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSpkrbRcURzqWTyBNerfvtb8mIngbhiJU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
