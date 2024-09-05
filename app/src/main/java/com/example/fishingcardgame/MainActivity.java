@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
         botNames.add(gameLogic.getAlicePlayer().getName());
         botNames.add(gameLogic.getBobPlayer().getName());
         botNames.add(gameLogic.getCharliePlayer().getName());
-        ArrayAdapter<String> botAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, botNames);
+        ArrayAdapter<String> botAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item, botNames);
         botAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         botSpinner.setAdapter(botAdapter);
         gameLogic.startGame();
@@ -238,8 +238,9 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
                         nextButton.setEnabled(true);
                         botSpinner.setEnabled(true);
                         rankSpinner.setEnabled(true);
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, gameLogic.getHumanPlayer().getValidRanks());
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, gameLogic.getHumanPlayer().getValidRanks());
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                        android.R.layout.simple_spinner_dropdown_item
                         rankSpinner.setAdapter(adapter);
                     }
                 }, 2000);
@@ -251,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
      * Update the rank spinner button
      */
     public void updateSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, gameLogic.getHumanPlayer().getValidRanks());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, R.layout.spinner_item, gameLogic.getHumanPlayer().getValidRanks());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         rankSpinner.setAdapter(adapter);
     }
@@ -508,6 +509,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     public void disableButtons() {
         rankSpinner.setEnabled(false);
         botSpinner.setEnabled(false);
+        rankSpinner.setVisibility(View.INVISIBLE);
+        botSpinner.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -516,6 +519,8 @@ public class MainActivity extends AppCompatActivity implements GameLogic.GameLis
     public void enableButtons() {
         rankSpinner.setEnabled(true);
         botSpinner.setEnabled(true);
+        rankSpinner.setVisibility(View.VISIBLE);
+        botSpinner.setVisibility(View.VISIBLE);
     }
 
     /**
